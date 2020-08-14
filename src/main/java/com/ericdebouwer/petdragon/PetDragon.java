@@ -14,9 +14,6 @@ public class PetDragon extends JavaPlugin  {
 	//player lower on dragon
 	//remove 'free the end' message
 	
-	//ZEGGEN:
-	//settings updaten niet voor oude draken, nieuwe nodig
-	
 	//SUPPORTED:
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
 	// 1.16.1, 1.16.2
@@ -59,18 +56,18 @@ public class PetDragon extends JavaPlugin  {
 	
 	public boolean setUpDragonClass(){
 		String packageName = this.getServer().getClass().getPackage().getName();
-        String version = packageName.substring(packageName.lastIndexOf('.') + 1);
+        	String version = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-        try {
-            final Class<?> clazz = Class.forName("com.ericdebouwer.enderdragonNMS.PetEnderDragon_" + version);
-            if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
-            	this.dragonClass = clazz;
-            	return true;
-            }
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        	try {
+            		final Class<?> clazz = Class.forName("com.ericdebouwer.enderdragonNMS.PetEnderDragon_" + version);
+            		if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
+            			this.dragonClass = clazz;
+            			return true;
+            		}
+        	} catch (final Exception e) {
+            		e.printStackTrace();
+       		}
+        	return false;
 	}
 	
 	public PetEnderDragon createPetDragon(Location loc){
