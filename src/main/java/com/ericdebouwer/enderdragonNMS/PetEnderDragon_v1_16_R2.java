@@ -155,12 +155,12 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 		float fwSpeed = rider.aT;
 		float sideSpeed = -1 * rider.aR;
 		
-        Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
+        	Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
         
-        Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
+        	Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
         
-        Location newLoc = this.getBukkitEntity().getLocation().add(total);
-        this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
+        	Location newLoc = this.getBukkitEntity().getLocation().add(total);
+        	this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
         
 	}	
 	
