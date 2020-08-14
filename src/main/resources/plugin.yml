@@ -1,0 +1,14 @@
+main: com.ericdebouwer.petdragon.PetDragon
+version: 1.0
+api-version: 1.14
+name: PetDragon
+author: ericdebouwer (3ricL)
+commands: 
+    dragon:
+permissions:
+   petdragon.command.spawn:
+      default: op
+   petdragon.command.remove:
+      default: op
+   petdragon.ride:
+      default: true
