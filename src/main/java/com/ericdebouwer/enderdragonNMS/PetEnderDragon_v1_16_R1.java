@@ -2,7 +2,6 @@ package com.ericdebouwer.enderdragonNMS;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
-
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.DamageSource;
 import net.minecraft.server.v1_16_R1.DragonControllerPhase;
@@ -19,7 +18,10 @@ import net.minecraft.server.v1_16_R1.Particles;
 import net.minecraft.server.v1_16_R1.World;
 import net.minecraft.server.v1_16_R1.WorldServer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.entity.DragonFireball;
@@ -31,7 +33,7 @@ import org.bukkit.util.Vector;
 import com.ericdebouwer.petdragon.Message;
 import com.ericdebouwer.petdragon.PetDragon;
 
-public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon  implements PetEnderDragon{
+public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnderDragon{
 	
 	Location loc;
 	private boolean canShoot = true;
@@ -101,9 +103,6 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon  implements PetEn
 		} else {
 			if (damagesource.getEntity() instanceof EntityHuman || damagesource.isExplosion()) {
 				this.dealDamage(damagesource, f);
-				if (this.dk() && !getDragonControllerManager().a().a()) {
-					this.setHealth(1.0F);
-				}
 			}
 			return true;
 		}
@@ -126,26 +125,28 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon  implements PetEn
 		EntityHuman rider = (EntityHuman) this.passengers.get(0);
 		Vector forwardDir = rider.getBukkitEntity().getLocation().getDirection();
 		
-		try {
-			Field jumping = EntityLiving.class.getDeclaredField("jumping");
-			jumping.setAccessible(true);
-			boolean jumped = jumping.getBoolean(rider);
-			if (jumped){
-				if (canShoot){
-					Location loc = this.getBukkitEntity().getLocation();
-					loc.add(forwardDir.clone().multiply(10).setY(-1));
-					
-					DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
-					fireball.setDirection(forwardDir);
-					fireball.setShooter(rider.getBukkitEntity());
-					canShoot = false;
+		if (rider.getBukkitEntity().hasPermission("petdragon.shoot")){
+	    	try {
+				Field jumping = EntityLiving.class.getDeclaredField("jumping");
+				jumping.setAccessible(true);
+				boolean jumped = jumping.getBoolean(rider);
+				if (jumped){
+					if (canShoot){
+						Location loc = this.getBukkitEntity().getLocation();
+						loc.add(forwardDir.clone().multiply(10).setY(-1));
+						
+						DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
+						fireball.setDirection(forwardDir);
+						fireball.setShooter(rider.getBukkitEntity());
+						canShoot = false;
+					}
 				}
+				else {
+					canShoot = true;
+				}
+			} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
 			}
-			else {
-				canShoot = true;
-			}
-		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
-		}
+    	}
 		
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
@@ -153,21 +154,29 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon  implements PetEn
 		float fwSpeed = rider.ba;
 		float sideSpeed = -1 * rider.aY;
 		
-        	Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
-        
-        	Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
-        
-       		Location newLoc = this.getBukkitEntity().getLocation().add(total);
-        	this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
+    	Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
+    
+    	Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
+    
+   		Location newLoc = this.getBukkitEntity().getLocation().add(total);
+    	this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
         
 	}	
 	
 	
 	@Override
 	public void cT(){
+		
 		++this.deathAnimationTicks;
 		
 		if (this.deathAnimationTicks == 1){
+			
+			//revoke advancement
+			if (this.getKillingEntity() instanceof EntityHuman){
+				Player p = (Player) this.getKillingEntity().getBukkitEntity();
+				Advancement freeEnd = Bukkit.getAdvancement(NamespacedKey.minecraft("end/kill_dragon"));
+				p.getAdvancementProgress(freeEnd).revokeCriteria("killed_dragon");
+			}
 			// make players nearby aware of his death 
 			
 			if (this.deathAnimationTicks == 1 && !this.isSilent()) {

@@ -12,7 +12,7 @@ public class PetDragon extends JavaPlugin  {
 
 	//TODO: 
 	//player lower on dragon
-	//remove 'free the end' message
+	//remove 'free the end' message (achievement is al weg)
 	
 	//SUPPORTED:
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)

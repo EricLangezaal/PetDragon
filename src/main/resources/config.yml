@@ -16,6 +16,12 @@ plugin-prefix: "§r[§5§lPetDragon§r] "
 right-click-to-ride: true
 left-click-to-ride: true
 
+# Whether PetDragons destroy blocks in their path like a normal enderdragon does
+do-block-destruction: true
+
+# If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
+do-entity-damage: true
+
 messages:
    no-command-permission: "§l§cSorry§r§7, you don't have permission to use that command!"
    no-ride-permission: "§l§cSorry§r§7, you don't have permission to ride dragons!"

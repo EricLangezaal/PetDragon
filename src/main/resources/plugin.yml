@@ -1,5 +1,5 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.0
+version: 1.1
 api-version: 1.14
 name: PetDragon
 author: ericdebouwer (3ricL)
@@ -11,4 +11,6 @@ permissions:
    petdragon.command.remove:
       default: op
    petdragon.ride:
+      default: true
+   petdragon.shoot:
       default: true

@@ -4,7 +4,10 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -32,6 +35,22 @@ public class DragonEvents implements Listener {
 		}
 	}
 	
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void explode(EntityExplodeEvent e){
+		if (!(e.getEntity() instanceof EnderDragon)) return;
+		if (!e.getEntity().getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)) return;
+		if (plugin.getConfigManager().doGriefing) return;
+		e.setCancelled(true);
+	}
+	
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void explode(EntityDamageByEntityEvent e){
+		if (!(e.getDamager() instanceof EnderDragon)) return;
+		if (!e.getDamager().getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)) return;
+		if (plugin.getConfigManager().damageEntities) return;
+		e.setCancelled(true);
+	}
+	
 	
 	@EventHandler
 	public void interact(PlayerInteractEntityEvent e){
@@ -52,9 +71,7 @@ public class DragonEvents implements Listener {
 			plugin.getConfigManager().sendMessage(e.getPlayer(), Message.NO_RIDE_PERMISSION, null);
 			return;
 		}
-		dragon.addPassenger(e.getPlayer());
-		
-			
+		dragon.addPassenger(e.getPlayer());	
 		
 	}
 

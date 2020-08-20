@@ -1,7 +1,10 @@
 package com.ericdebouwer.petdragon;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -21,6 +24,8 @@ public class ConfigManager {
 	private boolean isValid = true;
 	public boolean rightClickRide = true;
 	public boolean leftClickRide = true;
+	public boolean doGriefing = true;
+	public boolean damageEntities = true;
 	private String pluginPrefix = "";
 	
 	
@@ -30,11 +35,25 @@ public class ConfigManager {
 		
 		this.isValid = this.validateSection("", "", true);
 		
+		if (!isValid){
+			if (!handleUpdate()){
+				Bukkit.getLogger().log(Level.INFO,ChatColor.RED +  plugin.logPrefix + "Automatic configuration update failed! See the header of the config.yml about fixing it");
+			}else {
+				Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
+	        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "Automatically updated old configuration file!");
+	        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
+	        	this.isValid = true;
+			}
+		}
+		
 		if (isValid){
 			pluginPrefix = plugin.getConfig().getString("plugin-prefix");
 			rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
 			leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
+			doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
+			damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
 		}
+		
 	}
 	
 	public boolean isValid(){
@@ -72,6 +91,15 @@ public class ConfigManager {
  		return true;
 	}
 	
+	public boolean handleUpdate(){
+		File oldConfig = new File(plugin.getDataFolder(), "config.yml");
+		try {
+			ConfigUpdater.update(plugin, "config.yml", oldConfig, Collections.emptyList());
+		} catch (IOException e){
+			return false;
+		}
+		return true;
+	}
 	
 
 }
