@@ -12,7 +12,7 @@ public class PetDragon extends JavaPlugin  {
 
 	//TODO: 
 	//player lower on dragon
-	//remove 'free the end' message (achievement is al weg)
+	//remove 'free the end' message (achievement is already gone)
 	
 	//SUPPORTED:
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
@@ -41,9 +41,6 @@ public class PetDragon extends JavaPlugin  {
 			return;
 		}
 		getServer().getConsoleSender().sendMessage(logPrefix +"Configuration has been successfully loaded!");
-		
-		
-		
 		
 		new DragonCommand(this);
 		DragonEvents dragonEvents = new DragonEvents(this);
