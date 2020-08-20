@@ -126,7 +126,7 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		Vector forwardDir = rider.getBukkitEntity().getLocation().getDirection();
 		
 		if (rider.getBukkitEntity().hasPermission("petdragon.shoot")){
-	    	try {
+	    		try {
 				Field jumping = EntityLiving.class.getDeclaredField("jumping");
 				jumping.setAccessible(true);
 				boolean jumped = jumping.getBoolean(rider);
@@ -146,7 +146,7 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 				}
 			} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
 			}
-    	}
+    		}
 		
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
@@ -154,12 +154,12 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		float fwSpeed = rider.ba;
 		float sideSpeed = -1 * rider.aY;
 		
-    	Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
+    		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
     
-    	Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
+    		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
     
    		Location newLoc = this.getBukkitEntity().getLocation().add(total);
-    	this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
+    		this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
         
 	}	
 	
