@@ -22,13 +22,34 @@ do-block-destruction: true
 # If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
 do-entity-damage: true
 
+# Control how fast a dragon can fly. Default is one, which is approximately 1 block per tick (20 blocks/second). 
+# Setting this to to zero, negatives or really high numbers might have unexpected consequences!
+# Keep it as a double so 1.0 instead of 1 !
+speed-multiplier: 1.0
+
+# Maximum amount of dragons a player can spawn, all worlds combined.
+# Players with permission 'petdragon.bypass.dragonlimit' will ignore this
+max-dragons-per-player: 3
+
 messages:
    no-command-permission: "§l§cSorry§r§7, you don't have permission to use that command!"
    no-ride-permission: "§l§cSorry§r§7, you don't have permission to ride dragons!"
    
-   command-usage: "§6USAGE    §r/dragon §7<spawn | remove>"
+   reload-success: "§aThe plugin has been successfully reloaded!"
+   reload-fail: "§cReloading the configuration failed! See the console for more details."
+   
+   command-usage: "§6USAGE    §r/dragon §7<spawn | locate | remove>"
    
    dragon-spawned: "§aA new §5§lPetDragon§r§a has been spawned above you!"
+   
+   # you can use {amount} here which will be replaced with max amount you configured above!
+   too-many-dragons: "§cYou have too many dragons, remove one first. The maximum amount is {amount}!"
+   
    dragon-removed: "Dragon succesfully removed"
    no-dragon-found-to-remove: "§7No dragon found to remove, make sure you are really close to it!"
+   
+   locate-no-dragons: "§7You don't seem to have any dragons yet, spawn them using §5/dragon spawn"
+   located-dragons-header: "§aYou currently have {amount} registered dragon(s)! These are loaded:"
+   # {x} {y} and {z} will be replaced with coordinates. {world} with world-name
+   located-a-dragon: "§7--> {x}, {y}, {z} in world '{world}'" 
 

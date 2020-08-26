@@ -63,6 +63,11 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 	}
 	
 	@Override
+	public EnderDragon getEntity() {
+		return (EnderDragon) this.getBukkitEntity();
+	}
+	
+	@Override
 	protected void c(Tag<FluidType> tag) { //handle in water (do nothing so it wont change)
 	};
 	
@@ -157,8 +162,9 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
 		
-		float fwSpeed = rider.bb;
-		float sideSpeed = -1 * rider.aZ;
+		double speeder = plugin.getConfigManager().speedMultiplier;
+		double fwSpeed = rider.bb * speeder;
+		double sideSpeed = -1 * rider.aZ * speeder;
 		
     		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
     

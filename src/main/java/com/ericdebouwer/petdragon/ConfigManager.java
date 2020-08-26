@@ -10,10 +10,10 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -26,6 +26,8 @@ public class ConfigManager {
 	public boolean leftClickRide = true;
 	public boolean doGriefing = true;
 	public boolean damageEntities = true;
+	public double speedMultiplier = 1.0;
+	public int maxDragons = Integer.MAX_VALUE;
 	private String pluginPrefix = "";
 	
 	
@@ -33,27 +35,36 @@ public class ConfigManager {
 		this.plugin = plugin;
 		plugin.saveDefaultConfig();
 		
-		this.isValid = this.validateSection("", "", true);
+		this.isValid = this.checkConfig();
 		
-		if (!isValid){
-			if (!handleUpdate()){
-				Bukkit.getLogger().log(Level.INFO,ChatColor.RED +  plugin.logPrefix + "Automatic configuration update failed! See the header of the config.yml about fixing it");
-			}else {
-				Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
-	        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "Automatically updated old configuration file!");
-	        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
-	        	this.isValid = true;
+		if (isValid) this.loadConfig();
+		
+	}
+	
+	public boolean checkConfig(){
+		boolean valid = this.validateSection("", "", true, true);
+		if (!valid){
+			if (handleUpdate()){
+				if (this.validateSection("", "", true, false)) {
+					Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
+		        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "Automatically updated old/invalid configuration file!");
+		        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
+		        	return true;
+				}
 			}
+			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED +  plugin.logPrefix + "Automatic configuration update failed! See the header and the comments of the config.yml about fixing it");
 		}
-		
-		if (isValid){
-			pluginPrefix = plugin.getConfig().getString("plugin-prefix");
-			rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
-			leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
-			doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
-			damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
-		}
-		
+		return valid;
+	}
+	
+	public void loadConfig(){
+		pluginPrefix = plugin.getConfig().getString("plugin-prefix");
+		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
+		leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
+		doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
+		damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
+		speedMultiplier = plugin.getConfig().getDouble("speed-multiplier");
+		maxDragons = plugin.getConfig().getInt("max-dragons-per-player");
 	}
 	
 	public boolean isValid(){
@@ -61,7 +72,7 @@ public class ConfigManager {
 	}
 	
 	
-	public void sendMessage(Player p, Message message, ImmutableMap<String, String> replacements){
+	public void sendMessage(CommandSender p, Message message, ImmutableMap<String, String> replacements){
 		String msg = plugin.getConfig().getString(MESSAGES_PREFIX + message.getKey());
 		if (msg == null || msg.isEmpty()) return;
 		String colorMsg = ChatColor.translateAlternateColorCodes('§', this.pluginPrefix + msg);
@@ -73,18 +84,18 @@ public class ConfigManager {
 		p.sendMessage(colorMsg);	
 	}
 	
-	private boolean validateSection(String template_path, String real_path, boolean deep){
+	private boolean validateSection(String template_path, String real_path, boolean deep, boolean log){
 		InputStream templateFile = getClass().getClassLoader().getResourceAsStream("config.yml");
-                FileConfiguration templateConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(templateFile));
+        FileConfiguration templateConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(templateFile));
         
-                ConfigurationSection real_section = plugin.getConfig().getConfigurationSection(real_path);
-                ConfigurationSection template_section = templateConfig.getConfigurationSection(template_path);
-        
-                if (real_section == null || template_section == null) return false;
+        ConfigurationSection real_section = plugin.getConfig().getConfigurationSection(real_path);
+        ConfigurationSection template_section = templateConfig.getConfigurationSection(template_path);
+
+        if (real_section == null || template_section == null) return false;
         
  		for(String key: template_section.getKeys(deep)){
  			if (!real_section.getKeys(deep).contains(key) || template_section.get(key).getClass() != real_section.get(key).getClass()){
- 				Bukkit.getLogger().log(Level.WARNING, plugin.logPrefix + "Missing or invalid datatype key '" + key + "' and possibly others in config.yml");
+ 				if (log) Bukkit.getLogger().log(Level.WARNING, plugin.logPrefix + "Missing or invalid datatype key '" + key + "' and possibly others in config.yml");
  				return false;
  			}
  		}
@@ -95,10 +106,17 @@ public class ConfigManager {
 		File oldConfig = new File(plugin.getDataFolder(), "config.yml");
 		try {
 			ConfigUpdater.update(plugin, "config.yml", oldConfig, Collections.emptyList());
+			plugin.reloadConfig();
 		} catch (IOException e){
 			return false;
 		}
 		return true;
+	}
+	
+	public void reloadConfig(){
+		plugin.reloadConfig();
+		this.isValid = this.checkConfig();
+		if (isValid) this.loadConfig();
 	}
 	
 

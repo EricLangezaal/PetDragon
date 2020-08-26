@@ -2,6 +2,7 @@ package com.ericdebouwer.enderdragonNMS;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
+
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.DamageSource;
 import net.minecraft.server.v1_16_R1.DragonControllerPhase;
@@ -58,6 +59,12 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 	public void spawn(){
 		((CraftWorld)loc.getWorld()).getHandle().addEntity(this, SpawnReason.CUSTOM);
 	}
+	
+	@Override
+	public EnderDragon getEntity() {
+		return (EnderDragon) this.getBukkitEntity();
+	}
+	
 	
 	@Override
 	protected boolean cS() { //affected by fluids
@@ -151,8 +158,9 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
 		
-		float fwSpeed = rider.ba;
-		float sideSpeed = -1 * rider.aY;
+		double speeder = plugin.getConfigManager().speedMultiplier;
+		double fwSpeed = rider.ba * speeder;
+		double sideSpeed = -1 * rider.aY * speeder;
 		
     		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
     

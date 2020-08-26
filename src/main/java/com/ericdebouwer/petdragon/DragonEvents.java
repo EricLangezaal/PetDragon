@@ -1,5 +1,7 @@
 package com.ericdebouwer.petdragon;
 
+import java.util.Arrays;
+
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
@@ -10,6 +12,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,12 +27,17 @@ public class DragonEvents implements Listener {
 	}
 	
 	@EventHandler
+	public void load(WorldLoadEvent e){
+		plugin.getFactory().loadDragons(Arrays.asList(e.getWorld()));
+	}
+	
+	@EventHandler
 	public void onLoad(ChunkLoadEvent e){
 		// alle draken resetten zodat ze over restart werken
 		for (Entity ent: e.getChunk().getEntities()){
 			if (ent instanceof EnderDragon && ent.getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)){
-				ent.remove();
-				PetEnderDragon dragon = plugin.createPetDragon(ent.getLocation());
+				plugin.getFactory().removeDragon((EnderDragon) ent);
+				PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
 				dragon.spawn();
 			}
 		}
