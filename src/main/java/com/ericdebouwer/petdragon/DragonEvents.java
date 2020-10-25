@@ -36,13 +36,13 @@ public class DragonEvents implements Listener {
 		// alle draken resetten zodat ze over restart werken
 		for (Entity ent: e.getChunk().getEntities()){
 			if (ent instanceof EnderDragon && ent.getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)){
-				boolean issilent = ((EnderDragon) ent).isSilent(); 	/** grab isSilent before removing dragon */
+				boolean issilent = ((EnderDragon) ent).isSilent(); 		/** grab isSilent before removing dragon */
 				String cname = ((EnderDragon) ent).getCustomName(); 	/** grab customName before removing dragon */
 				plugin.getFactory().removeDragon((EnderDragon) ent);
 				PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
 				dragon.spawn();
-				dragon.getEntity().setSilent(issilent); 		/** setSilent on newly spawned dragon */
-				dragon.getEntity().setCustomName(cname); 		/** setCustomName on newly spawned dragon */
+				dragon.getEntity().setSilent(issilent); 				/** setSilent on newly spawned dragon */
+				dragon.getEntity().setCustomName(cname); 				/** setCustomName on newly spawned dragon */
 			}
 		}
 	}
