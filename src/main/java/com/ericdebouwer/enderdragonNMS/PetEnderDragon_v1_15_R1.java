@@ -14,18 +14,13 @@ import net.minecraft.server.v1_15_R1.EntityHuman;
 import net.minecraft.server.v1_15_R1.EntityLiving;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EntityTypes;
-import net.minecraft.server.v1_15_R1.ItemStack;
 import net.minecraft.server.v1_15_R1.MinecraftServer;
 import net.minecraft.server.v1_15_R1.PacketPlayOutWorldEvent;
 import net.minecraft.server.v1_15_R1.Particles;
 import net.minecraft.server.v1_15_R1.World;
 import net.minecraft.server.v1_15_R1.WorldServer;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
@@ -33,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.util.Vector;
 
-import com.ericdebouwer.petdragon.Message;
 import com.ericdebouwer.petdragon.PetDragon;
 
 public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEnderDragon{
@@ -50,10 +44,9 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		super(null, ((CraftWorld)loc.getWorld()).getHandle());
 		this.plugin = plugin;
 		this.loc = loc;
-		EnderDragon bukkitDragon = (EnderDragon) this.getBukkitEntity();
-		bukkitDragon.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(MAX_HEALTH);
-		bukkitDragon.setHealth(MAX_HEALTH);
-		bukkitDragon.getScoreboardTags().add(PetEnderDragon.DRAGON_ID);
+		
+		this.setupDefault();
+		this.getBukkitEntity().setSilent(plugin.getConfigManager().silent);
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
@@ -84,15 +77,9 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		} 
 		if (plugin.getConfigManager().leftClickRide){
 			if (damagesource.getEntity() instanceof EntityHuman) {
-				EntityHuman human = (EntityHuman) damagesource.getEntity();
-				ItemStack item = human.inventory.getItemInHand();
-					// lege hand
-				if (item.isEmpty()){
-					if (human.getBukkitEntity().hasPermission("petdragon.ride")){
-						human.startRiding(this);
-					}
-					else plugin.getConfigManager().sendMessage((Player) human.getBukkitEntity(), Message.NO_RIDE_PERMISSION, null);
-					return false;
+				Player human = (Player) damagesource.getEntity().getBukkitEntity();
+				if (plugin.getFactory().tryRide(human, (EnderDragon) this.getBukkitEntity())){
+					return false; //cancel damage
 				}
 			}
 		}
@@ -109,7 +96,9 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 			return false;
 		} else {
 			if (damagesource.getEntity() instanceof EntityHuman || damagesource.isExplosion()) {
+				damagesource = DamageSource.c(null); //fake explosion
 				this.dealDamage(damagesource, f);
+				
 				if (this.isFrozen() && !getDragonControllerManager().a().a()) {
 					this.setHealth(1.0F);
 				}
@@ -180,61 +169,57 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 	public void cD(){
 		++this.bA;
 		
-		if (this.bA == 1){
-			
-			//revoke advancement
-			if (this.getKillingEntity() instanceof EntityHuman){
-				Player p = (Player) this.getKillingEntity().getBukkitEntity();
-				Advancement freeEnd = Bukkit.getAdvancement(NamespacedKey.minecraft("end/kill_dragon"));
-				p.getAdvancementProgress(freeEnd).revokeCriteria("killed_dragon");
-			}
-			// make players nearby aware of his death 
-			
-			if (this.bA == 1 && !this.isSilent()) {
-				int viewDistance = ((WorldServer) this.world).getServer()
-						.getViewDistance() * 16;
-				@SuppressWarnings("deprecation")
-				Iterator<EntityPlayer> var5 = MinecraftServer.getServer().getPlayerList().players
-						.iterator();
+		if (!plugin.getConfigManager().deathAnimation){
+			this.die();
+			return;
+		}
+		
+		// make players nearby aware of his death 	
+		if (this.bA == 1 && !this.isSilent()) {
+			int viewDistance = ((WorldServer) this.world).getServer()
+					.getViewDistance() * 16;
+			@SuppressWarnings("deprecation")
+			Iterator<EntityPlayer> var5 = MinecraftServer.getServer().getPlayerList().players
+					.iterator();
 
-				label59 : while (true) {
-					EntityPlayer player;
-					double deltaX;
-					double deltaZ;
-					double distanceSquared;
-					do {
-						if (!var5.hasNext()) {
-							break label59;
-						}
-
-						player = (EntityPlayer) var5.next();
-						deltaX = this.locX() - player.locX();
-						deltaZ = this.locZ() - player.locZ();
-						distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
-					} while (this.world.spigotConfig.dragonDeathSoundRadius > 0
-							&& distanceSquared > (double) (this.world.spigotConfig.dragonDeathSoundRadius * this.world.spigotConfig.dragonDeathSoundRadius));
-
-					if (distanceSquared > (double) (viewDistance * viewDistance)) {
-						double deltaLength = Math.sqrt(distanceSquared);
-						double relativeX = player.locX() + deltaX / deltaLength
-								* (double) viewDistance;
-						double relativeZ = player.locZ() + deltaZ / deltaLength
-								* (double) viewDistance;
-						player.playerConnection
-								.sendPacket(new PacketPlayOutWorldEvent(1028,
-										new BlockPosition((int) relativeX,
-												(int) this.locY(),
-												(int) relativeZ), 0, true));
-					} else {
-						player.playerConnection
-								.sendPacket(new PacketPlayOutWorldEvent(1028,
-										new BlockPosition((int) this.locX(),
-												(int) this.locY(), (int) this
-														.locZ()), 0, true));
+			label59 : while (true) {
+				EntityPlayer player;
+				double deltaX;
+				double deltaZ;
+				double distanceSquared;
+				do {
+					if (!var5.hasNext()) {
+						break label59;
 					}
+
+					player = (EntityPlayer) var5.next();
+					deltaX = this.locX() - player.locX();
+					deltaZ = this.locZ() - player.locZ();
+					distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
+				} while (this.world.spigotConfig.dragonDeathSoundRadius > 0
+						&& distanceSquared > (double) (this.world.spigotConfig.dragonDeathSoundRadius * this.world.spigotConfig.dragonDeathSoundRadius));
+
+				if (distanceSquared > (double) (viewDistance * viewDistance)) {
+					double deltaLength = Math.sqrt(distanceSquared);
+					double relativeX = player.locX() + deltaX / deltaLength
+							* (double) viewDistance;
+					double relativeZ = player.locZ() + deltaZ / deltaLength
+							* (double) viewDistance;
+					player.playerConnection
+							.sendPacket(new PacketPlayOutWorldEvent(1028,
+									new BlockPosition((int) relativeX,
+											(int) this.locY(),
+											(int) relativeZ), 0, true));
+				} else {
+					player.playerConnection
+							.sendPacket(new PacketPlayOutWorldEvent(1028,
+									new BlockPosition((int) this.locX(),
+											(int) this.locY(), (int) this
+													.locZ()), 0, true));
 				}
 			}
 		}
+		
 		
 		if (this.bA <= 100) {
 			// particle stuff

@@ -1,6 +1,5 @@
 package com.ericdebouwer.petdragon;
 
-import java.util.Arrays;
 
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
@@ -11,10 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.ericdebouwer.enderdragonNMS.PetEnderDragon;
 
@@ -27,34 +26,46 @@ public class DragonEvents implements Listener {
 	}
 	
 	@EventHandler
-	public void load(WorldLoadEvent e){
-		plugin.getFactory().loadDragons(Arrays.asList(e.getWorld()));
+	public void onJoin(PlayerJoinEvent e){
+		new BukkitRunnable() {
+			public void run() {
+				Entity vehicle = e.getPlayer().getVehicle();
+				PetEnderDragon newDragon = handleDragonReset(vehicle);
+				if (newDragon != null)
+					newDragon.getEntity().addPassenger(e.getPlayer());
+				
+			}
+		}.runTask(plugin);
 	}
+	
 	
 	@EventHandler
 	public void onLoad(ChunkLoadEvent e){
-		// alle draken resetten zodat ze over restart werken
+		// reset dragons so they will still work
 		for (Entity ent: e.getChunk().getEntities()){
-			if (ent instanceof EnderDragon && ent.getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)){
-				plugin.getFactory().removeDragon((EnderDragon) ent);
-				PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
-				dragon.spawn();
-			}
+			handleDragonReset(ent);
 		}
+	}
+	
+	public PetEnderDragon handleDragonReset(Entity ent){
+		if (!plugin.getFactory().isPetDragon(ent)) return null;
+		plugin.getFactory().removeDragon((EnderDragon) ent);
+		PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
+		dragon.spawn();
+		return dragon;
+	
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void explode(EntityExplodeEvent e){
-		if (!(e.getEntity() instanceof EnderDragon)) return;
-		if (!e.getEntity().getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)) return;
+		if (!plugin.getFactory().isPetDragon(e.getEntity())) return;
 		if (plugin.getConfigManager().doGriefing) return;
 		e.setCancelled(true);
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void explode(EntityDamageByEntityEvent e){
-		if (!(e.getDamager() instanceof EnderDragon)) return;
-		if (!e.getDamager().getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)) return;
+		if (!plugin.getFactory().isPetDragon(e.getEntity())) return;
 		if (plugin.getConfigManager().damageEntities) return;
 		e.setCancelled(true);
 	}
@@ -65,23 +76,11 @@ public class DragonEvents implements Listener {
 		if (e.getHand() != EquipmentSlot.HAND) return; //prevent double firing
 		
 		if (!plugin.getConfigManager().rightClickRide) return;
-		
-		ItemStack handHeld = e.getPlayer().getInventory().getItemInMainHand();
-		if ( !(handHeld == null || handHeld.getType().isAir())) return;
-		
 		if (!(e.getRightClicked() instanceof EnderDragonPart)) return;
 		
 		EnderDragonPart part = (EnderDragonPart) e.getRightClicked();
 		EnderDragon dragon = part.getParent();
-		
-		if (! dragon.getScoreboardTags().contains(PetEnderDragon.DRAGON_ID)) return;
-		if (!e.getPlayer().hasPermission("petdragon.ride")) {
-			plugin.getConfigManager().sendMessage(e.getPlayer(), Message.NO_RIDE_PERMISSION, null);
-			return;
-		}
-		dragon.addPassenger(e.getPlayer());	
-		
+		plugin.getFactory().tryRide(e.getPlayer(), dragon);
 	}
-
 	
 }

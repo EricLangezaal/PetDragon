@@ -1,5 +1,5 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.2
+version: 1.3
 api-version: 1.14
 name: PetDragon
 author: ericdebouwer (3ricL)
@@ -15,6 +15,8 @@ permissions:
    petdragon.command.reload:
       default: op
    petdragon.bypass.dragonlimit:
+      default: op
+   petdragon.bypass.owner:
       default: op
    petdragon.ride:
       default: true

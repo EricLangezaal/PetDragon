@@ -22,12 +22,16 @@ public class ConfigManager {
 	private PetDragon plugin;
 	private final String MESSAGES_PREFIX = "messages.";
 	private boolean isValid = true;
+	
 	public boolean rightClickRide = true;
 	public boolean leftClickRide = true;
+	public boolean deathAnimation = true;
+	public boolean silent = false;
 	public boolean doGriefing = true;
 	public boolean damageEntities = true;
 	public double speedMultiplier = 1.0;
 	public int maxDragons = Integer.MAX_VALUE;
+	public boolean clickToRemove = false;
 	private String pluginPrefix = "";
 	
 	
@@ -61,10 +65,17 @@ public class ConfigManager {
 		pluginPrefix = plugin.getConfig().getString("plugin-prefix");
 		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
 		leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
+		deathAnimation = plugin.getConfig().getBoolean("do-death-animation");
+		
+		silent = plugin.getConfig().getBoolean("silent-dragons");
+		
 		doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
 		damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
+		
 		speedMultiplier = plugin.getConfig().getDouble("speed-multiplier");
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player");
+		
+		clickToRemove = plugin.getConfig().getBoolean("click-to-remove");
 	}
 	
 	public boolean isValid(){
@@ -72,16 +83,21 @@ public class ConfigManager {
 	}
 	
 	
-	public void sendMessage(CommandSender p, Message message, ImmutableMap<String, String> replacements){
+	public String parseMessage(Message message, ImmutableMap<String, String> replacements){
 		String msg = plugin.getConfig().getString(MESSAGES_PREFIX + message.getKey());
-		if (msg == null || msg.isEmpty()) return;
+		if (msg == null || msg.isEmpty()) return null;
 		String colorMsg = ChatColor.translateAlternateColorCodes('§', this.pluginPrefix + msg);
 		if (replacements != null){
 			for (Map.Entry<String, String> entry: replacements.entrySet()){
 				colorMsg = colorMsg.replaceAll("\\{" + entry.getKey() + "\\}", entry.getValue());
 			}
 		}
-		p.sendMessage(colorMsg);	
+		return colorMsg;	
+	}
+	
+	public void sendMessage(CommandSender p, Message message,ImmutableMap<String, String> replacements){
+		String msg = this.parseMessage(message, replacements);
+		if (msg != null) p.sendMessage(msg);
 	}
 	
 	private boolean validateSection(String template_path, String real_path, boolean deep, boolean log){

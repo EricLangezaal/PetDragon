@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
@@ -13,32 +13,33 @@ import org.bukkit.util.Vector;
 
 import com.ericdebouwer.petdragon.PetDragon;
 
-import net.minecraft.server.v1_16_R2.BlockPosition;
-import net.minecraft.server.v1_16_R2.DamageSource;
-import net.minecraft.server.v1_16_R2.DragonControllerPhase;
-import net.minecraft.server.v1_16_R2.EntityComplexPart;
-import net.minecraft.server.v1_16_R2.EntityHuman;
-import net.minecraft.server.v1_16_R2.EntityLiving;
-import net.minecraft.server.v1_16_R2.EntityPlayer;
-import net.minecraft.server.v1_16_R2.MinecraftServer;
-import net.minecraft.server.v1_16_R2.PacketPlayOutWorldEvent;
-import net.minecraft.server.v1_16_R2.Particles;
-import net.minecraft.server.v1_16_R2.WorldServer;
-import net.minecraft.server.v1_16_R2.EntityEnderDragon;
-import net.minecraft.server.v1_16_R2.EntityTypes;
-import net.minecraft.server.v1_16_R2.World;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.DamageSource;
+import net.minecraft.server.v1_16_R3.DragonControllerPhase;
+import net.minecraft.server.v1_16_R3.EntityComplexPart;
+import net.minecraft.server.v1_16_R3.EntityEnderDragon;
+import net.minecraft.server.v1_16_R3.EntityHuman;
+import net.minecraft.server.v1_16_R3.EntityLiving;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.EntityTypes;
+import net.minecraft.server.v1_16_R3.MinecraftServer;
+import net.minecraft.server.v1_16_R3.PacketPlayOutWorldEvent;
+import net.minecraft.server.v1_16_R3.Particles;
+import net.minecraft.server.v1_16_R3.World;
+import net.minecraft.server.v1_16_R3.WorldServer;
 
-public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEnderDragon {
+
+public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnderDragon {
 	
 	Location loc;
 	private boolean canShoot = true;
 	private PetDragon plugin;
 
-	public PetEnderDragon_v1_16_R2(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
+	public PetEnderDragon_v1_16_R3(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
 		super(EntityTypes.ENDER_DRAGON, world);
 	}
 	
-	public PetEnderDragon_v1_16_R2(Location loc, PetDragon plugin){
+	public PetEnderDragon_v1_16_R3(Location loc, PetDragon plugin){
 		super(null, ((CraftWorld)loc.getWorld()).getHandle());
 		this.plugin = plugin;
 		this.loc = loc;
@@ -50,7 +51,6 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 		
 	}
 
-	
 	@Override
 	public void spawn() {
 		((CraftWorld)loc.getWorld()).getHandle().addEntity(this, SpawnReason.CUSTOM);
@@ -62,13 +62,13 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 	}
 	
 	@Override
-	protected boolean cS() { //affected by fluids
+	protected boolean cT() { //affected by fluids
 		return false;
 	};
 
 	
 	@Override
-	public boolean bs() { //ridable in water
+	public boolean bt() { //ridable in water
 		return true;
 	};
 		
@@ -79,8 +79,7 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 			return false;
 		} 
 		if (plugin.getConfigManager().leftClickRide){
-			if (damagesource.getEntity() instanceof EntityPlayer) {
-				
+			if (damagesource.getEntity() instanceof EntityHuman) {
 				Player human = (Player) damagesource.getEntity().getBukkitEntity();
 				if (plugin.getFactory().tryRide(human, (EnderDragon) this.getBukkitEntity())){
 					return false; //cancel damage
@@ -102,8 +101,7 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 			if (damagesource.getEntity() instanceof EntityHuman || damagesource.isExplosion()) {
 				damagesource = DamageSource.d(null); //fake explosion
 				this.dealDamage(damagesource, f);
-				
-				if (this.dk() && !getDragonControllerManager().a().a()) {
+				if (this.dl() && !getDragonControllerManager().a().a()) {
 					this.setHealth(1.0F);
 				}
 			}
@@ -120,6 +118,7 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 	@Override
 	// each movement update
 	public void movementTick(){
+		
 		super.movementTick();
 		
 		if (this.passengers.isEmpty() || !(this.passengers.get(0) instanceof EntityHuman)){
@@ -169,15 +168,15 @@ public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEn
 	
 	
 	@Override
-	public void cT(){
+	public void cU(){
 		++this.deathAnimationTicks;
 		
 		if (!plugin.getConfigManager().deathAnimation){
 			this.die();
 			return;
 		}
-		
 		// make players nearby aware of his death 
+		
 		if (this.deathAnimationTicks == 1 && !this.isSilent()) {
 			int viewDistance = ((WorldServer) this.world).getServer()
 					.getViewDistance() * 16;
