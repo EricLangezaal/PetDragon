@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEnderDragon;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ import net.minecraft.server.v1_16_R3.EntityLiving;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EntityTypes;
 import net.minecraft.server.v1_16_R3.MinecraftServer;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import net.minecraft.server.v1_16_R3.PacketPlayOutWorldEvent;
 import net.minecraft.server.v1_16_R3.Particles;
 import net.minecraft.server.v1_16_R3.World;
@@ -49,6 +51,17 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 		
+	}
+	
+	@Override
+	public void copyFrom(EnderDragon dragon) {
+		EntityEnderDragon other = ((CraftEnderDragon) dragon).getHandle();
+		NBTTagCompound nbt = other.save(new NBTTagCompound());
+		nbt.remove("UUID");
+		nbt.remove("Passengers");
+		nbt.remove("WorldUUIDLeast");
+		nbt.remove("WorldUUIDMost");
+		this.load(nbt);
 	}
 
 	@Override

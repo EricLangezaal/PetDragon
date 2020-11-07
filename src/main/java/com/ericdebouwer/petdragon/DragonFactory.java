@@ -37,9 +37,9 @@ public class DragonFactory {
 	public PetEnderDragon create(Location loc, UUID owner){
 		try {
 			PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(Location.class, PetDragon.class).newInstance(loc, plugin);
-			String uuidText = (owner == null) ? "" : owner.toString();
-			dragon.getEntity().getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, uuidText);
-
+			if (owner != null){
+				dragon.getEntity().getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.toString());
+			}
 			return dragon;
 		} catch (Exception e){
 			e.printStackTrace();
@@ -71,8 +71,7 @@ public class DragonFactory {
 	}
 	
 	public PetEnderDragon copy(EnderDragon dragon){
-		UUID owner = this.getOwner(dragon);
-		PetEnderDragon petDragon = this.create(dragon.getLocation(), owner);
+		PetEnderDragon petDragon = this.create(dragon.getLocation(), null);
 		petDragon.copyFrom(dragon);
 		return petDragon;	
 	}

@@ -136,6 +136,7 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
+		manager.sendMessage(player, Message.COMMAND_USAGE, null);
 		return true;
 	}
 

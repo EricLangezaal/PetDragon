@@ -18,9 +18,7 @@ public interface PetEnderDragon {
 		dragon.getScoreboardTags().add(PetEnderDragon.DRAGON_ID);
 	}
 	
-	default void copyFrom(EnderDragon dragon){
-		this.setHealth((float) dragon.getHealth());
-	}
+	void copyFrom(EnderDragon dragon);
 	
 	public void spawn();
 	
