@@ -29,6 +29,7 @@ public class ConfigManager {
 	public boolean silent = false;
 	public boolean doGriefing = true;
 	public boolean damageEntities = true;
+	public boolean interactEntities = true;
 	public double speedMultiplier = 1.0;
 	public int maxDragons = Integer.MAX_VALUE;
 	public boolean clickToRemove = false;
@@ -71,6 +72,7 @@ public class ConfigManager {
 		
 		doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
 		damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
+		interactEntities = plugin.getConfig().getBoolean("do-entity-interact");
 		
 		speedMultiplier = plugin.getConfig().getDouble("speed-multiplier");
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player");

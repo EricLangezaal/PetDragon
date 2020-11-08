@@ -20,7 +20,12 @@ left-click-to-ride: true
 do-block-destruction: true
 
 # If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
+# Those entities will still be launched away, see option below
 do-entity-damage: true
+
+# If a PetDragon should interact at all with other entities (swoop them away)
+# if set to 'false' PetDragons will also NOT damage other entities
+do-entity-interact: true
 
 # Whether or not a PetDragon will show the enderdragon death animation when it dies
 do-death-animation: true

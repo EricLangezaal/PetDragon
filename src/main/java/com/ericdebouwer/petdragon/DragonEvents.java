@@ -1,6 +1,5 @@
 package com.ericdebouwer.petdragon;
 
-
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
@@ -12,6 +11,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -36,6 +36,13 @@ public class DragonEvents implements Listener {
 				
 			}
 		}.runTask(plugin);
+	}
+	
+	@EventHandler
+	public void worldLoad(WorldLoadEvent e){
+		for (EnderDragon dragon: e.getWorld().getEntitiesByClass(EnderDragon.class)){
+			handleDragonReset(dragon);
+		}
 	}
 	
 	
@@ -64,8 +71,8 @@ public class DragonEvents implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void explode(EntityDamageByEntityEvent e){
-		if (!plugin.getFactory().isPetDragon(e.getEntity())) return;
+	public void damage(EntityDamageByEntityEvent e){
+		if (!plugin.getFactory().isPetDragon(e.getDamager())) return;
 		if (plugin.getConfigManager().damageEntities) return;
 		e.setCancelled(true);
 	}

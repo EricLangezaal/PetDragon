@@ -131,8 +131,10 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 	@Override
 	// each movement update
 	public void movementTick(){
-		
+		int oldTicks = this.hurtTicks;
+		if (!plugin.getConfigManager().interactEntities) this.hurtTicks = 1;
 		super.movementTick();
+		if (!plugin.getConfigManager().interactEntities) this.hurtTicks = oldTicks;
 		
 		if (this.passengers.isEmpty() || !(this.passengers.get(0) instanceof EntityHuman)){
 			return;
