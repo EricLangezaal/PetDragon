@@ -10,6 +10,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -52,7 +53,15 @@ public class DragonFactory {
 		return ent.getScoreboardTags().contains(PetEnderDragon.DRAGON_ID);
 	}
 	
-	public boolean tryRide(Player p, EnderDragon dragon){
+	public boolean canDamage(HumanEntity player, PetEnderDragon dragon){
+		UUID owner = this.getOwner(dragon.getEntity());
+		if (owner == null) return true;
+		if (owner.equals(player.getUniqueId())) return player.hasPermission("petdragon.hurt.self");
+		if (player.hasPermission("petdragon.hurt.others")) return true;
+		return false;
+	}
+	
+	public boolean tryRide(HumanEntity p, EnderDragon dragon){
 		if (!isPetDragon(dragon)) return false;
 		ItemStack handHeld = p.getInventory().getItemInMainHand();
 		if ( !(handHeld == null || handHeld.getType().isAir())) return false;

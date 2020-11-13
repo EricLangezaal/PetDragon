@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -40,8 +41,8 @@ public class DragonEvents implements Listener {
 	
 	@EventHandler
 	public void worldLoad(WorldLoadEvent e){
-		for (EnderDragon dragon: e.getWorld().getEntitiesByClass(EnderDragon.class)){
-			handleDragonReset(dragon);
+		for (Entity ent: e.getWorld().getEntitiesByClass(EnderDragon.class)){
+			handleDragonReset(ent);
 		}
 	}
 	
@@ -56,6 +57,7 @@ public class DragonEvents implements Listener {
 	
 	public PetEnderDragon handleDragonReset(Entity ent){
 		if (!plugin.getFactory().isPetDragon(ent)) return null;
+		//Bukkit.getLogger().log(Level.INFO, "Dragon reset at: " + ent.getLocation().toString());
 		plugin.getFactory().removeDragon((EnderDragon) ent);
 		PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
 		dragon.spawn();
@@ -71,7 +73,7 @@ public class DragonEvents implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void damage(EntityDamageByEntityEvent e){
+	public void entityDamage(EntityDamageByEntityEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getDamager())) return;
 		if (plugin.getConfigManager().damageEntities) return;
 		e.setCancelled(true);

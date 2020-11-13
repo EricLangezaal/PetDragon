@@ -1,5 +1,6 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.3.1
+version: 1.3.2
+load: STARTUP
 api-version: 1.14
 name: PetDragon
 author: ericdebouwer (3ricL)
@@ -17,6 +18,10 @@ permissions:
    petdragon.bypass.dragonlimit:
       default: op
    petdragon.bypass.owner:
+      default: op
+   petdragon.hurt.self:
+      default: true
+   petdragon.hurt.others:
       default: op
    petdragon.ride:
       default: true

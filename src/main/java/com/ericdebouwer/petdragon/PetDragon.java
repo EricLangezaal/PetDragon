@@ -1,5 +1,6 @@
 package com.ericdebouwer.petdragon;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,9 @@ public class PetDragon extends JavaPlugin  {
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
 	// 1.16.1, 1.16.2, 1.16.3, 1.16.4
 	//1.14.4, 1.14.x(not tested)
+	
+	//TODO:
+	// option to stop people from killing others dragons
 	
 	public String logPrefix;
 	private ConfigManager configManager;
@@ -34,8 +38,11 @@ public class PetDragon extends JavaPlugin  {
  			getServer().getConsoleSender().sendMessage(ChatColor.BOLD + "" + ChatColor.RED + logPrefix + "See the header of the config.yml about fixing the problem.");
 			return;
 		}
+		
 		getServer().getConsoleSender().sendMessage(logPrefix +"Configuration has been successfully loaded!");
-		getServer().getConsoleSender().sendMessage(logPrefix +"If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL");
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> (
+				getServer().getConsoleSender().sendMessage(logPrefix +"If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL")
+				));
 		
 		new DragonCommand(this);
 		DragonEvents dragonEvents = new DragonEvents(this);

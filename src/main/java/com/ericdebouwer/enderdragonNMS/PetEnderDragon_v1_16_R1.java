@@ -24,7 +24,7 @@ import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEnderDragon;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.util.Vector;
 
@@ -88,14 +88,18 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		if (getDragonControllerManager().a().getControllerPhase() == DragonControllerPhase.DYING) {
 			return false;
 		} 
+		
+		if (!(damagesource.getEntity() instanceof EntityHuman)) return false;
+		HumanEntity damager = (HumanEntity) damagesource.getEntity().getBukkitEntity();
+		
 		if (plugin.getConfigManager().leftClickRide){
-			if (damagesource.getEntity() instanceof EntityHuman) {
-				Player human = (Player) damagesource.getEntity().getBukkitEntity();
-				if (plugin.getFactory().tryRide(human, (EnderDragon) this.getBukkitEntity())){
-					return false; //cancel damage
-				}
+			if (plugin.getFactory().tryRide(damager, (EnderDragon) this.getBukkitEntity())){
+				return false; //cancel damage
 			}
+			
 		}
+		
+		if (!plugin.getFactory().canDamage(damager, this)) return false;
 		
 		f = getDragonControllerManager().a().a(damagesource, f);
 		f = f / (200.0F / MAX_HEALTH);
@@ -108,10 +112,9 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		if (f < 0.01F) {
 			return false;
 		} else {
-			if (damagesource.getEntity() instanceof EntityHuman || damagesource.isExplosion()) {
-				damagesource = DamageSource.d(null); //fake explosion
-				this.dealDamage(damagesource, f);
-			}
+			damagesource = DamageSource.d(null); //fake explosion
+			this.dealDamage(damagesource, f);
+			
 			return true;
 		}
 	}
