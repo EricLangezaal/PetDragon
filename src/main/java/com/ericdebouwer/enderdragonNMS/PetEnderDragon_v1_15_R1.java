@@ -3,6 +3,7 @@ package com.ericdebouwer.enderdragonNMS;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
+import net.minecraft.server.v1_15_R1.EnumMoveType;
 import net.minecraft.server.v1_15_R1.FluidType;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.Tag;
@@ -18,6 +19,7 @@ import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.MinecraftServer;
 import net.minecraft.server.v1_15_R1.PacketPlayOutWorldEvent;
 import net.minecraft.server.v1_15_R1.Particles;
+import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.World;
 import net.minecraft.server.v1_15_R1.WorldServer;
 
@@ -49,6 +51,7 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		
 		this.setupDefault();
 		this.getBukkitEntity().setSilent(plugin.getConfigManager().silent);
+		this.noclip = plugin.getConfigManager().flyThroughBlocks;
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
@@ -175,9 +178,7 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
     		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
     
     		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
-    
-    		Location newLoc = this.getBukkitEntity().getLocation().add(total);
-    		this.setPosition(newLoc.getX(), newLoc.getY(), newLoc.getZ());
+    		this.move(EnumMoveType.SELF, new Vec3D(total.getX(), total.getY(), total.getZ()));
         
 	}	
 	

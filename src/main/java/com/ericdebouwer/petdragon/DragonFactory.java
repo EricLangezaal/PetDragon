@@ -35,6 +35,22 @@ public class DragonFactory {
 		return correctVersion;
 	}
 	
+	public boolean setUpDragonClass(){
+		String packageName = plugin.getServer().getClass().getPackage().getName();
+    	String version = packageName.substring(packageName.lastIndexOf('.') + 1);
+
+    	try {
+        	final Class<?> clazz = Class.forName("com.ericdebouwer.enderdragonNMS.PetEnderDragon_" + version);
+        	if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
+        		this.dragonClass = clazz;
+        		return true;
+        	}
+    	} catch (final Exception e) {
+        	return false;
+   		}
+    	return false;
+	}
+	
 	public PetEnderDragon create(Location loc, UUID owner){
 		try {
 			PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(Location.class, PetDragon.class).newInstance(loc, plugin);
@@ -79,6 +95,26 @@ public class DragonFactory {
 		return true;
 	}
 	
+	public void reloadDragons(){
+		for (World w: Bukkit.getWorlds()){
+			for (EnderDragon dragon: w.getEntitiesByClass(EnderDragon.class)){
+				this.handleDragonReset(dragon);
+			}
+		}
+	}
+	
+	
+	public void handleDragonReset(Entity ent){
+		if (!isPetDragon(ent)) return;
+		//Bukkit.getLogger().log(Level.INFO, "Dragon reset at: " + ent.getLocation().toString());
+		removeDragon((EnderDragon) ent);
+		PetEnderDragon dragon = copy((EnderDragon) ent);
+		dragon.spawn();
+		for (Entity passenger: ent.getPassengers()){
+			dragon.getEntity().addPassenger(passenger);
+		}	
+	}
+	
 	public PetEnderDragon copy(EnderDragon dragon){
 		PetEnderDragon petDragon = this.create(dragon.getLocation(), null);
 		petDragon.copyFrom(dragon);
@@ -101,22 +137,6 @@ public class DragonFactory {
 	// all remove calls in one place for future
 	public void removeDragon(EnderDragon dragon){
 		dragon.remove();
-	}
-	
-	public boolean setUpDragonClass(){
-		String packageName = plugin.getServer().getClass().getPackage().getName();
-    	String version = packageName.substring(packageName.lastIndexOf('.') + 1);
-
-    	try {
-        	final Class<?> clazz = Class.forName("com.ericdebouwer.enderdragonNMS.PetEnderDragon_" + version);
-        	if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
-        		this.dragonClass = clazz;
-        		return true;
-        	}
-    	} catch (final Exception e) {
-        	return false;
-   		}
-    	return false;
 	}
 	
 	public UUID getOwner(EnderDragon dragon){

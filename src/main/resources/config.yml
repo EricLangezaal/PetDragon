@@ -19,6 +19,10 @@ left-click-to-ride: true
 # Whether PetDragons destroy blocks in their path like a normal enderdragon does
 do-block-destruction: true
 
+# Whether a PetDragon can fly through blocks at all!
+# If set to 'false' it will still break some blocks, see the option above to disable that
+fly-through-blocks: true
+
 # If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
 # Those entities will still be launched away, see option below
 do-entity-damage: true
@@ -38,24 +42,35 @@ silent-dragons: false
 # Keep it as a double so 1.0 instead of 1 !
 speed-multiplier: 1.0
 
-# Maximum amount of dragons a player can spawn, all worlds combined.
+# Maximum amount of dragons a player can spawn, all worlds combined (only counts loaded worlds)
+# V1.4 Spawn eggs ignore this setting, so that is another way to control PetDragon amount (e.g. by giving 1 egg per player)
 # Players with permission 'petdragon.bypass.dragonlimit' will ignore this
 max-dragons-per-player: 3
 
 # Whether or not clicking on the located-a-dragon message will remove that dragon
-# ONLY enable if server uses Spigot or Paper!
+# ONLY enable if server uses Spigot or Paper (or any of their forks)!
 click-to-remove: false
+
+# This name will be given to the PetDragon spawn egg (obtainable via /dragon egg)
+dragon-egg-name: "§5§lPetDragon spawn egg"
 
 messages:
    no-command-permission: "§l§cSorry§r§7, you don't have permission to use that command!"
    no-ride-permission: "§l§cSorry§r§7, you don't have permission to ride dragons!"
    # you can use {owner} for the name of the person who spawned/owns this dragon
    no-joyride-permission: "§l§cSorry§r§7, you can't ride {owner}'s dragon!"
+
+   # Shown when a player tries to USE a spawn egg without permission
+   no-egg-permission: "§l§cSorry§r§7, you don't have permission to use §5§lPetDragon§r§7 spawn eggs!"
+
+   # Shown when you receive a dragon spawn egg through command
+   egg-received: "You have been given a §5§lPetDragon§r spawn egg!"
+   egg-hatched: "§aThe egg hatched! A new §5§lPetDragon§r§a has been spawned above you!"
    
    reload-success: "§aThe plugin has been successfully reloaded!"
    reload-fail: "§cReloading the configuration failed! See the console for more details."
    
-   command-usage: "§6USAGE    §r/dragon §7<spawn | locate | remove>"
+   command-usage: "§6USAGE    §r/dragon §7<spawn | locate | remove | egg>"
 
    dragon-spawned: "§aA new §5§lPetDragon§r§a has been spawned above you!"
 

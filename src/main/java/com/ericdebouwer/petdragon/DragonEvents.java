@@ -1,22 +1,26 @@
 package com.ericdebouwer.petdragon;
 
+import java.util.Arrays;
+
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.ericdebouwer.enderdragonNMS.PetEnderDragon;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class DragonEvents implements Listener {
 	
@@ -31,10 +35,7 @@ public class DragonEvents implements Listener {
 		new BukkitRunnable() {
 			public void run() {
 				Entity vehicle = e.getPlayer().getVehicle();
-				PetEnderDragon newDragon = handleDragonReset(vehicle);
-				if (newDragon != null)
-					newDragon.getEntity().addPassenger(e.getPlayer());
-				
+				plugin.getFactory().handleDragonReset(vehicle);
 			}
 		}.runTask(plugin);
 	}
@@ -42,7 +43,7 @@ public class DragonEvents implements Listener {
 	@EventHandler
 	public void worldLoad(WorldLoadEvent e){
 		for (Entity ent: e.getWorld().getEntitiesByClass(EnderDragon.class)){
-			handleDragonReset(ent);
+			plugin.getFactory().handleDragonReset(ent);
 		}
 	}
 	
@@ -51,19 +52,10 @@ public class DragonEvents implements Listener {
 	public void onLoad(ChunkLoadEvent e){
 		// reset dragons so they will still work
 		for (Entity ent: e.getChunk().getEntities()){
-			handleDragonReset(ent);
+			plugin.getFactory().handleDragonReset(ent);
 		}
 	}
 	
-	public PetEnderDragon handleDragonReset(Entity ent){
-		if (!plugin.getFactory().isPetDragon(ent)) return null;
-		//Bukkit.getLogger().log(Level.INFO, "Dragon reset at: " + ent.getLocation().toString());
-		plugin.getFactory().removeDragon((EnderDragon) ent);
-		PetEnderDragon dragon = plugin.getFactory().copy((EnderDragon) ent);
-		dragon.spawn();
-		return dragon;
-	
-	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void explode(EntityExplodeEvent e){
@@ -75,10 +67,37 @@ public class DragonEvents implements Listener {
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void entityDamage(EntityDamageByEntityEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getDamager())) return;
-		if (plugin.getConfigManager().damageEntities) return;
-		e.setCancelled(true);
+		if (!plugin.getConfigManager().damageEntities) e.setCancelled(true);
+		if (!(e.getEntity() instanceof Player)) return;
+		
+		Player player = (Player) e.getEntity();
+		if (player.getUniqueId().equals(plugin.getFactory().getOwner((EnderDragon) e.getDamager())) || 
+				e.getDamager().getPassengers().contains(e.getEntity())) e.setCancelled(true); 
 	}
 	
+	//stop kick for flying
+	@EventHandler(priority=EventPriority.LOWEST)
+	public void kick(PlayerKickEvent e){
+		if (!e.getReason().toLowerCase().contains("flying")) return;
+		if (e.getPlayer().getNoDamageTicks() > 10) e.setCancelled(true);
+		if (plugin.getFactory().isPetDragon(e.getPlayer().getVehicle())) e.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void dragonDismount(EntityDismountEvent e){
+		if (!plugin.getFactory().isPetDragon(e.getDismounted())) return;
+		if (!(e.getEntity() instanceof Player)) return;
+		Player player = (Player) e.getEntity();
+		//prevent launch and fall damage
+		player.setNoDamageTicks(150);
+	}
+	
+	@EventHandler
+	public void riderDamage(EntityDamageEvent e){
+		if (!plugin.getFactory().isPetDragon(e.getEntity().getVehicle())) return;
+		if (Arrays.asList(DamageCause.FLY_INTO_WALL, DamageCause.ENTITY_EXPLOSION, DamageCause.DRAGON_BREATH, DamageCause.FALL)
+				.contains(e.getCause())) e.setCancelled(true);
+	}
 	
 	@EventHandler
 	public void interact(PlayerInteractEntityEvent e){

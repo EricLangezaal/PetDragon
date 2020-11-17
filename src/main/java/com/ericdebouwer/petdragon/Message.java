@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon;
 
 public enum Message {
 	NO_PERMISSION_COMMAND("no-command-permission"),NO_RIDE_PERMISSION ("no-ride-permission"), NO_JOYRIDE ("no-joyride-permission"),
+	NO_EGG("no-egg-permission"), EGG_HATCHED("egg-hatched"), EGG_RECEIVED("egg-received"),
 	DRAGON_SPAWNED ("dragon-spawned"), DRAGON_REMOVED ("dragon-removed"), DRAGON_NOT_FOUND ("no-dragon-found-to-remove"),
 	RELOAD_SUCCESS ("reload-success"), RELOAD_FAIL("reload-fail"), 
 	DRAGON_LIMIT ("too-many-dragons"),

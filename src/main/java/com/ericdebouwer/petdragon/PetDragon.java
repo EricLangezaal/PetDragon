@@ -9,15 +9,14 @@ public class PetDragon extends JavaPlugin  {
 	
 	//SUPPORTED:
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
-	// 1.16.1, 1.16.2, 1.16.3, 1.16.4
+	// 1.16.1, 1.16.2, 1.16.3, 1.16.4 (tested)
 	//1.14.4, 1.14.x(not tested)
 	
-	//TODO:
-	// option to stop people from killing others dragons
 	
 	public String logPrefix;
 	private ConfigManager configManager;
 	private DragonFactory dragonFactory;
+	private EggManager eggManager;
 	
 	@Override
 	public void onEnable(){
@@ -45,6 +44,7 @@ public class PetDragon extends JavaPlugin  {
 				));
 		
 		new DragonCommand(this);
+		eggManager = new EggManager(this);
 		DragonEvents dragonEvents = new DragonEvents(this);
 		getServer().getPluginManager().registerEvents(dragonEvents, this);
 	}
@@ -55,6 +55,10 @@ public class PetDragon extends JavaPlugin  {
 	
 	public DragonFactory getFactory(){
 		return this.dragonFactory;
+	}
+	
+	public EggManager getEggManager(){
+		return this.eggManager;
 	}
 	
 	

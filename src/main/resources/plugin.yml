@@ -1,7 +1,9 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.3.2
+version: 1.4
 load: STARTUP
 api-version: 1.14
+website: https://rebrand.ly/PetDragon
+description: Fly custom fully controllable EnderDragons and destroy your foes!
 name: PetDragon
 author: ericdebouwer (3ricL)
 commands: 
@@ -15,6 +17,8 @@ permissions:
       default: true
    petdragon.command.reload:
       default: op
+   petdragon.command.egg:
+      default: op
    petdragon.bypass.dragonlimit:
       default: op
    petdragon.bypass.owner:
@@ -23,6 +27,8 @@ permissions:
       default: true
    petdragon.hurt.others:
       default: op
+   petdragon.spawnegg:
+      default: true
    petdragon.ride:
       default: true
    petdragon.shoot:

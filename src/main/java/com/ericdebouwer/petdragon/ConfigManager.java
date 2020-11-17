@@ -28,12 +28,14 @@ public class ConfigManager {
 	public boolean deathAnimation = true;
 	public boolean silent = false;
 	public boolean doGriefing = true;
+	public boolean flyThroughBlocks = true;
 	public boolean damageEntities = true;
 	public boolean interactEntities = true;
 	public double speedMultiplier = 1.0;
 	public int maxDragons = Integer.MAX_VALUE;
 	public boolean clickToRemove = false;
 	private String pluginPrefix = "";
+	public String dragonEggName = "";
 	
 	
 	public ConfigManager(PetDragon plugin){
@@ -64,6 +66,8 @@ public class ConfigManager {
 	
 	public void loadConfig(){
 		pluginPrefix = plugin.getConfig().getString("plugin-prefix");
+		dragonEggName = ChatColor.translateAlternateColorCodes('§', plugin.getConfig().getString("dragon-egg-name", ""));
+		
 		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
 		leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
 		deathAnimation = plugin.getConfig().getBoolean("do-death-animation");
@@ -71,6 +75,8 @@ public class ConfigManager {
 		silent = plugin.getConfig().getBoolean("silent-dragons");
 		
 		doGriefing = plugin.getConfig().getBoolean("do-block-destruction");
+		flyThroughBlocks = plugin.getConfig().getBoolean("fly-through-blocks");
+		
 		damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
 		interactEntities = plugin.getConfig().getBoolean("do-entity-interact");
 		
