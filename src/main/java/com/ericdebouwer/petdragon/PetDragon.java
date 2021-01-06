@@ -1,5 +1,7 @@
 package com.ericdebouwer.petdragon;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,15 +40,28 @@ public class PetDragon extends JavaPlugin  {
 			return;
 		}
 		
-		getServer().getConsoleSender().sendMessage(logPrefix +"Configuration has been successfully loaded!");
+		getLogger().log(Level.INFO, "Configuration has been successfully loaded!");
 		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> (
-				getServer().getConsoleSender().sendMessage(logPrefix +"If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL")
+				getLogger().log(Level.INFO, "If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL")
 				));
 		
 		new DragonCommand(this);
 		eggManager = new EggManager(this);
 		DragonEvents dragonEvents = new DragonEvents(this);
 		getServer().getPluginManager().registerEvents(dragonEvents, this);
+		
+		if (configManager.checkUpdates) {
+			new UpdateChecker(this).onStart(() -> {
+				getLogger().log(Level.INFO, "Checking for updates...");
+			}).onError(() -> {
+				getLogger().log(Level.WARNING, "Failed to check for updates!");
+			}).onOldVersion((oldVersion, newVersion) -> {
+				getLogger().log(Level.INFO, "Update detected! You are using version " + oldVersion + ", but version " + newVersion + " is available!");
+				getLogger().log(Level.INFO, "You can download the new version here -> https://www.spigotmc.org/resources/" +  UpdateChecker.RESOURCE_ID + "/updates");
+			}).onNoUpdate(() -> {
+				getLogger().log(Level.INFO, "You are running the latest version.");
+			}).run();
+		}
 	}
 	
 	public ConfigManager getConfigManager(){

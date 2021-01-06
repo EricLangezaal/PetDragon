@@ -53,7 +53,6 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 		this.noclip = plugin.getConfigManager().flyThroughBlocks;
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
-		
 	}
 	
 	@Override

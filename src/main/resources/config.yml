@@ -11,6 +11,9 @@
 
 plugin-prefix: "§r[§5§lPetDragon§r] "
 
+# whether the plugin will check for updates on start-up
+check-for-updates: true
+
 # Whether or not using a mouse button with empty hand allows you to ride a dragon
 # Both can be enabled at the same time
 right-click-to-ride: true
@@ -79,6 +82,7 @@ messages:
    
    dragon-removed: "Dragon succesfully removed"
    no-dragon-found-to-remove: "§7No dragon found to remove, make sure you are really close to it!"
+   remove-range-invalid: "§cPlease specify the range as a positive integer smaller than 20"
    
    locate-no-dragons: "§7You don't seem to have any dragons yet, spawn them using §5/dragon spawn"
    # {amount} will be replaced with the amount of dragons a player has

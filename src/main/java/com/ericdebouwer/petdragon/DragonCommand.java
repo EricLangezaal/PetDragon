@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -40,7 +41,6 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 	public final String EGG_ARG = "egg";
 	
 	public List<String> arguments;
-	
 	
 	public DragonCommand(PetDragon plugin){
 		this.plugin = plugin;
@@ -90,7 +90,7 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 		}
 		else if (args[0].equalsIgnoreCase(REMOVE_ARG)){
 			boolean found = false;
-			
+			int range = 3;
 			if (args.length >= 2){
 				try {
 					Entity potentialDragon = Bukkit.getEntity(UUID.fromString(args[1]));
@@ -98,16 +98,26 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 						plugin.getFactory().removeDragon((EnderDragon) potentialDragon);
 						found = true;
 					}
-				} catch(IllegalArgumentException ignore){
+				} catch(IllegalArgumentException ila){
+					try {
+						int argRange = Integer.parseInt(args[1]);
+						if (argRange < 0 || argRange > 20) throw new NumberFormatException();
+						range = argRange;
+					} catch (NumberFormatException e){
+						manager.sendMessage(player, Message.RANGE_INVALID, null);
+						return true;
+					}
 				}
 			}
 			if (!found) {
-				for (Entity ent: player.getNearbyEntities(3, 3, 3)){
-					if (!plugin.getFactory().isPetDragon(ent)) continue;
-					
-					plugin.getFactory().removeDragon((EnderDragon) ent);
+				List<Entity> nearbyEnts = (List<Entity>) player.getWorld().getNearbyEntities(
+						player.getLocation(), range, range, range, (e) -> plugin.getFactory().isPetDragon(e));
+				nearbyEnts.sort(Comparator.comparingDouble((e) -> 
+					((Entity)e).getLocation().distanceSquared(player.getLocation())));
+				
+				if (!nearbyEnts.isEmpty()){
+					plugin.getFactory().removeDragon((EnderDragon) nearbyEnts.get(0));
 					found = true;
-					break;
 				}
 			}
 			if (found) manager.sendMessage(player, Message.DRAGON_REMOVED, null);
@@ -149,8 +159,12 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 1){
 			return arguments.stream().filter(
-					s -> (sender.hasPermission("petdragon.command." + s) &&  s.startsWith(args[0]))
+					s -> (sender.hasPermission("petdragon.command." + s) &&  s.startsWith(args[0].toLowerCase()))
 					).collect(Collectors.toList());
+		}
+		if (args.length == 2 && args[0].equalsIgnoreCase(REMOVE_ARG)){
+			return Arrays.asList("3", "5", "10").stream().
+					filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
 	}

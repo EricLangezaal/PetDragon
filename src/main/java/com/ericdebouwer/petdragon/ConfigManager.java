@@ -23,6 +23,8 @@ public class ConfigManager {
 	private final String MESSAGES_PREFIX = "messages.";
 	private boolean isValid = true;
 	
+	public boolean checkUpdates = true;
+	
 	public boolean rightClickRide = true;
 	public boolean leftClickRide = true;
 	public boolean deathAnimation = true;
@@ -66,6 +68,9 @@ public class ConfigManager {
 	
 	public void loadConfig(){
 		pluginPrefix = plugin.getConfig().getString("plugin-prefix");
+		
+		checkUpdates = plugin.getConfig().getBoolean("check-for-updates");
+		
 		dragonEggName = ChatColor.translateAlternateColorCodes('§', plugin.getConfig().getString("dragon-egg-name", ""));
 		
 		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
