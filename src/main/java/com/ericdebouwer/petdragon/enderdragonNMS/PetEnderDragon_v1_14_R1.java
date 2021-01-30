@@ -1,4 +1,4 @@
-package com.ericdebouwer.enderdragonNMS;
+package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
@@ -34,10 +34,19 @@ import org.bukkit.util.Vector;
 
 import com.ericdebouwer.petdragon.PetDragon;
 
-public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEnderDragon{
+public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEnderDragon {
+
+	static Field jumpField;
+	static {
+		try {
+			jumpField = EntityLiving.class.getDeclaredField("jumping");
+			jumpField.setAccessible(true);
+		} catch (NoSuchFieldException ignore) {
+		}
+	}
 	
 	Location loc;
-	private boolean canShoot = true;
+	private long lastShot;
 	private PetDragon plugin;
 
 	public PetEnderDragon_v1_14_R1(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
@@ -147,29 +156,23 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		}
 		EntityHuman rider = (EntityHuman) this.passengers.get(0);
 		Vector forwardDir = rider.getBukkitEntity().getLocation().getDirection();
-		
-		if (rider.getBukkitEntity().hasPermission("petdragon.shoot")){
-	    		try {
-				Field jumping = EntityLiving.class.getDeclaredField("jumping");
-				jumping.setAccessible(true);
-				boolean jumped = jumping.getBoolean(rider);
-				if (jumped){
-					if (canShoot){
-						Location loc = this.getBukkitEntity().getLocation();
-						loc.add(forwardDir.clone().multiply(10).setY(-1));
-						
-						DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
-						fireball.setDirection(forwardDir);
-						fireball.setShooter(rider.getBukkitEntity());
-						canShoot = false;
-					}
+
+		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
+			try {
+				boolean jumped = jumpField.getBoolean(rider);
+				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+
+					Location loc = this.getBukkitEntity().getLocation();
+					loc.add(forwardDir.clone().multiply(10).setY(-1));
+
+					DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
+					fireball.setDirection(forwardDir);
+					fireball.setShooter(this.getEntity());
+					lastShot = System.currentTimeMillis();
 				}
-				else {
-					canShoot = true;
-				}
-			} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
+			} catch (IllegalArgumentException | IllegalAccessException ignore){
 			}
-    		}
+		}
 		
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);

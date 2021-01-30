@@ -1,6 +1,8 @@
 package com.ericdebouwer.petdragon;
 
+import com.ericdebouwer.petdragon.config.Message;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -11,12 +13,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import com.ericdebouwer.enderdragonNMS.PetEnderDragon;
+import com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon;
 
 public class EggManager implements Listener {
 	
-	private NamespacedKey key;
-	private PetDragon plugin;
+	private final NamespacedKey key;
+	private final PetDragon plugin;
 
 	public EggManager(PetDragon plugin){
 		this.plugin = plugin;
@@ -42,10 +44,18 @@ public class EggManager implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		
+		if (e.getPlayer().getGameMode() == GameMode.CREATIVE && plugin.getConfigManager().alwaysUseUpEgg){
+			ItemStack handItem = e.getPlayer().getInventory().getItemInMainHand();
+			if (handItem.getAmount() > 1) {
+				handItem.setAmount(handItem.getAmount() - 1);
+				e.getPlayer().getInventory().setItemInMainHand(handItem);
+			}
+			else e.getPlayer().getInventory().setItemInMainHand(null);
+		}
+
 		PetEnderDragon dragon = plugin.getFactory().create(e.getBlock().getLocation().add(0, 3, 0), e.getPlayer().getUniqueId());
 		dragon.spawn();
 		plugin.getConfigManager().sendMessage(e.getPlayer(), Message.EGG_HATCHED, null);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> (e.getBlock().setType(Material.AIR)));
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> e.getBlock().setType(Material.AIR));
 	}
 }

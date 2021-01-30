@@ -1,29 +1,12 @@
-package com.ericdebouwer.enderdragonNMS;
+package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
-import net.minecraft.server.v1_16_R1.BlockPosition;
-import net.minecraft.server.v1_16_R1.DamageSource;
-import net.minecraft.server.v1_16_R1.DragonControllerPhase;
-import net.minecraft.server.v1_16_R1.EntityComplexPart;
-import net.minecraft.server.v1_16_R1.EntityEnderDragon;
-import net.minecraft.server.v1_16_R1.EntityHuman;
-import net.minecraft.server.v1_16_R1.EntityLiving;
-import net.minecraft.server.v1_16_R1.EntityPlayer;
-import net.minecraft.server.v1_16_R1.EntityTypes;
-import net.minecraft.server.v1_16_R1.EnumMoveType;
-import net.minecraft.server.v1_16_R1.MinecraftServer;
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
-import net.minecraft.server.v1_16_R1.PacketPlayOutWorldEvent;
-import net.minecraft.server.v1_16_R1.Particles;
-import net.minecraft.server.v1_16_R1.Vec3D;
-import net.minecraft.server.v1_16_R1.World;
-import net.minecraft.server.v1_16_R1.WorldServer;
-
+import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEnderDragon;
+import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEnderDragon;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
@@ -32,17 +15,26 @@ import org.bukkit.util.Vector;
 
 import com.ericdebouwer.petdragon.PetDragon;
 
-public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnderDragon{
+public class PetEnderDragon_v1_16_R2 extends EntityEnderDragon  implements PetEnderDragon {
+
+	static Field jumpField;
+	static {
+		try {
+			jumpField = EntityLiving.class.getDeclaredField("jumping");
+			jumpField.setAccessible(true);
+		} catch (NoSuchFieldException ignore) {
+		}
+	}
 	
 	Location loc;
-	private boolean canShoot = true;
+	private long lastShot;
 	private PetDragon plugin;
 
-	public PetEnderDragon_v1_16_R1(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
+	public PetEnderDragon_v1_16_R2(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
 		super(EntityTypes.ENDER_DRAGON, world);
 	}
 	
-	public PetEnderDragon_v1_16_R1(Location loc, PetDragon plugin){
+	public PetEnderDragon_v1_16_R2(Location loc, PetDragon plugin){
 		super(null, ((CraftWorld)loc.getWorld()).getHandle());
 		this.plugin = plugin;
 		this.loc = loc;
@@ -53,7 +45,7 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
-	
+
 	@Override
 	public void copyFrom(EnderDragon dragon) {
 		EntityEnderDragon other = ((CraftEnderDragon) dragon).getHandle();
@@ -65,7 +57,8 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		this.load(nbt);
 	}
 	
-	public void spawn(){
+	@Override
+	public void spawn() {
 		((CraftWorld)loc.getWorld()).getHandle().addEntity(this, SpawnReason.CUSTOM);
 	}
 	
@@ -74,14 +67,14 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		return (EnderDragon) this.getBukkitEntity();
 	}
 	
-	
 	@Override
 	protected boolean cS() { //affected by fluids
 		return false;
 	};
+
 	
 	@Override
-	public boolean bp() { //ridable in water
+	public boolean bs() { //ridable in water
 		return true;
 	};
 		
@@ -108,7 +101,7 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		f = f / (200.0F / MAX_HEALTH);
 		
 		//head 4x as much damage
-		if (entitycomplexpart != this.bv) {
+		if (entitycomplexpart != this.bo) {
 			f = f / 4.0F + Math.min(f, 1.0F);
 		}
 		
@@ -117,6 +110,10 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		} else {
 			damagesource = DamageSource.d(null); //fake explosion
 			this.dealDamage(damagesource, f);
+			
+			if (this.dk() && !getDragonControllerManager().a().a()) {
+				this.setHealth(1.0F);
+			}
 			
 			return true;
 		}
@@ -129,7 +126,7 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 	
     
 	@Override
-	// elke bewegings update
+	// each movement update
 	public void movementTick(){
 		int oldTicks = this.hurtTicks;
 		if (!plugin.getConfigManager().interactEntities) this.hurtTicks = 1;
@@ -141,48 +138,40 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		}
 		EntityHuman rider = (EntityHuman) this.passengers.get(0);
 		Vector forwardDir = rider.getBukkitEntity().getLocation().getDirection();
-		
-		if (rider.getBukkitEntity().hasPermission("petdragon.shoot")){
-	    		try {
-				Field jumping = EntityLiving.class.getDeclaredField("jumping");
-				jumping.setAccessible(true);
-				boolean jumped = jumping.getBoolean(rider);
-				if (jumped){
-					if (canShoot){
-						Location loc = this.getBukkitEntity().getLocation();
-						loc.add(forwardDir.clone().multiply(10).setY(-1));
-						
-						DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
-						fireball.setDirection(forwardDir);
-						fireball.setShooter(rider.getBukkitEntity());
-						canShoot = false;
-					}
+
+		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
+			try {
+				boolean jumped = jumpField.getBoolean(rider);
+				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+
+					Location loc = this.getBukkitEntity().getLocation();
+					loc.add(forwardDir.clone().multiply(10).setY(-1));
+
+					DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
+					fireball.setDirection(forwardDir);
+					fireball.setShooter(this.getEntity());
+					lastShot = System.currentTimeMillis();
 				}
-				else {
-					canShoot = true;
-				}
-			} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
+			} catch (IllegalArgumentException | IllegalAccessException ignore){
 			}
-    		}
-		
+		}
+
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
 		
 		double speeder = plugin.getConfigManager().speedMultiplier;
-		double fwSpeed = rider.ba * speeder;
-		double sideSpeed = -1 * rider.aY * speeder;
-		
-    		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
-    
-    		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
-    		this.move(EnumMoveType.SELF, new Vec3D(total.getX(), total.getY(), total.getZ()));
-        
+		double fwSpeed = rider.aT * speeder;
+		double sideSpeed = -1 * rider.aR * speeder;
+
+		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
+
+		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
+		this.move(EnumMoveType.SELF, new Vec3D(total.getX(), total.getY(), total.getZ()));
 	}	
 	
 	
 	@Override
 	public void cT(){
-		
 		++this.deathAnimationTicks;
 		
 		if (!plugin.getConfigManager().deathAnimation){
@@ -191,7 +180,6 @@ public class PetEnderDragon_v1_16_R1 extends EntityEnderDragon implements PetEnd
 		}
 		
 		// make players nearby aware of his death 
-		
 		if (this.deathAnimationTicks == 1 && !this.isSilent()) {
 			int viewDistance = ((WorldServer) this.world).getServer()
 					.getViewDistance() * 16;

@@ -1,15 +1,15 @@
-package com.ericdebouwer.enderdragonNMS;
+package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderDragon;
 
 public interface PetEnderDragon {
 	
-	public static final String DRAGON_ID = "CustomPetDragon";
+	String DRAGON_ID = "CustomPetDragon";
 	
-	public static final String OWNER_ID = "OwnerOfTheDragon";
+	String OWNER_ID = "OwnerOfTheDragon";
 	
-	public final float MAX_HEALTH = 60.0F;
+	float MAX_HEALTH = 60.0F;
 	
 	default void setupDefault(){
 		EnderDragon dragon = this.getEntity();
@@ -20,10 +20,8 @@ public interface PetEnderDragon {
 	
 	void copyFrom(EnderDragon dragon);
 	
-	public void spawn();
-	
-	public void setHealth(float health);
+	void spawn();
 
-	public EnderDragon getEntity();
+	EnderDragon getEntity();
 	
 }

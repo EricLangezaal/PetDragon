@@ -1,8 +1,9 @@
-package com.ericdebouwer.enderdragonNMS;
+package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
+import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEnderDragon;
@@ -14,29 +15,20 @@ import org.bukkit.util.Vector;
 
 import com.ericdebouwer.petdragon.PetDragon;
 
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.DamageSource;
-import net.minecraft.server.v1_16_R3.DragonControllerPhase;
-import net.minecraft.server.v1_16_R3.EntityComplexPart;
-import net.minecraft.server.v1_16_R3.EntityEnderDragon;
-import net.minecraft.server.v1_16_R3.EntityHuman;
-import net.minecraft.server.v1_16_R3.EntityLiving;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.EntityTypes;
-import net.minecraft.server.v1_16_R3.EnumMoveType;
-import net.minecraft.server.v1_16_R3.MinecraftServer;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.PacketPlayOutWorldEvent;
-import net.minecraft.server.v1_16_R3.Particles;
-import net.minecraft.server.v1_16_R3.Vec3D;
-import net.minecraft.server.v1_16_R3.World;
-import net.minecraft.server.v1_16_R3.WorldServer;
-
 
 public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnderDragon {
-	
+
+	static Field jumpField;
+	static {
+		try {
+			jumpField = EntityLiving.class.getDeclaredField("jumping");
+			jumpField.setAccessible(true);
+		} catch (NoSuchFieldException ignore) {
+		}
+	}
+
 	Location loc;
-	private boolean canShoot = true;
+	private long lastShot;
 	private PetDragon plugin;
 
 	public PetEnderDragon_v1_16_R3(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
@@ -79,13 +71,13 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 	@Override
 	protected boolean cT() { //affected by fluids
 		return false;
-	};
+	}
 
 	
 	@Override
 	public boolean bt() { //ridable in water
 		return true;
-	};
+	}
 		
 	
 	@Override
@@ -136,37 +128,33 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 	public void movementTick(){
 		int oldTicks = this.hurtTicks;
 		if (!plugin.getConfigManager().interactEntities) this.hurtTicks = 1;
+
 		super.movementTick();
+
 		if (!plugin.getConfigManager().interactEntities) this.hurtTicks = oldTicks;
-		
+
 		if (this.passengers.isEmpty() || !(this.passengers.get(0) instanceof EntityHuman)){
 			return;
 		}
 		EntityHuman rider = (EntityHuman) this.passengers.get(0);
 		Vector forwardDir = rider.getBukkitEntity().getLocation().getDirection();
 		
-		if (rider.getBukkitEntity().hasPermission("petdragon.shoot")){
-	    		try {
-				Field jumping = EntityLiving.class.getDeclaredField("jumping");
-				jumping.setAccessible(true);
-				boolean jumped = jumping.getBoolean(rider);
-				if (jumped){
-					if (canShoot){
-						Location loc = this.getBukkitEntity().getLocation();
-						loc.add(forwardDir.clone().multiply(10).setY(-1));
-						
-						DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
-						fireball.setDirection(forwardDir);
-						fireball.setShooter(rider.getBukkitEntity());
-						canShoot = false;
-					}
+		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
+			try {
+				boolean jumped = jumpField.getBoolean(rider);
+				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+
+					Location loc = this.getBukkitEntity().getLocation();
+					loc.add(forwardDir.clone().multiply(10).setY(-1));
+
+					DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
+					fireball.setDirection(forwardDir);
+					fireball.setShooter(this.getEntity());
+					lastShot = System.currentTimeMillis();
 				}
-				else {
-					canShoot = true;
-				}
-			} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e ){
+			} catch (IllegalArgumentException | IllegalAccessException ignore){
 			}
-    		}
+		}
 		
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
@@ -175,10 +163,10 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 		double fwSpeed = rider.aT * speeder;
 		double sideSpeed = -1 * rider.aR * speeder;
 		
-    		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
+		Vector sideways = forwardDir.clone().crossProduct(new Vector(0,1,0));
     
-    		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
-    		this.move(EnumMoveType.SELF, new Vec3D(total.getX(), total.getY(), total.getZ()));
+		Vector total = forwardDir.multiply(fwSpeed).add(sideways.multiply(sideSpeed));
+		this.move(EnumMoveType.SELF, new Vec3D(total.getX(), total.getY(), total.getZ()));
         
 	}	
 	
@@ -194,7 +182,7 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 		// make players nearby aware of his death 
 		
 		if (this.deathAnimationTicks == 1 && !this.isSilent()) {
-			int viewDistance = ((WorldServer) this.world).getServer()
+			int viewDistance = (this.world).getServer()
 					.getViewDistance() * 16;
 			@SuppressWarnings("deprecation")
 			Iterator<EntityPlayer> var5 = MinecraftServer.getServer().getPlayerList().players
@@ -210,7 +198,7 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 						break label59;
 					}
 
-					player = (EntityPlayer) var5.next();
+					player = var5.next();
 					deltaX = this.locX() - player.locX();
 					deltaZ = this.locZ() - player.locZ();
 					distanceSquared = deltaX * deltaX + deltaZ * deltaZ;

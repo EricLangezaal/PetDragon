@@ -40,6 +40,10 @@ do-death-animation: true
 # setting this to true mutes the sound PetDragons make
 silent-dragons: false
 
+# How many SECONDS a player has to wait before his dragon can shoot again
+# Keep it as a double so 2.0 instead of 2 !
+shoot-cooldown-seconds: 2.0
+
 # Control how fast a dragon can fly. Default is one, which is approximately 1 block per tick (20 blocks/second). 
 # Setting this to to zero, negatives or really high numbers might have unexpected consequences!
 # Keep it as a double so 1.0 instead of 1 !
@@ -56,6 +60,9 @@ click-to-remove: false
 
 # This name will be given to the PetDragon spawn egg (obtainable via /dragon egg)
 dragon-egg-name: "§5§lPetDragon spawn egg"
+
+# Whether PetDragon spawn eggs will be used up even in gamemodes like creative
+always-use-up-egg: true
 
 messages:
    no-command-permission: "§l§cSorry§r§7, you don't have permission to use that command!"
@@ -83,6 +90,8 @@ messages:
    dragon-removed: "Dragon succesfully removed"
    no-dragon-found-to-remove: "§7No dragon found to remove, make sure you are really close to it!"
    remove-range-invalid: "§cPlease specify the range as a positive integer smaller than 20"
+   # you can use {owner} for the name of the person who spawned/owns this dragon
+   not-yours-to-remove: "§cYou are not allowed to remove {owner}'s dragon!"
    
    locate-no-dragons: "§7You don't seem to have any dragons yet, spawn them using §5/dragon spawn"
    # {amount} will be replaced with the amount of dragons a player has

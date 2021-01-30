@@ -1,5 +1,5 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.4.1
+version: 1.4.2
 load: STARTUP
 api-version: 1.14
 website: "https://www.spigotmc.org/resources/82744"
@@ -22,6 +22,8 @@ permissions:
    petdragon.bypass.dragonlimit:
       default: op
    petdragon.bypass.owner:
+      default: op
+   petdragon.bypass.remove:
       default: op
    petdragon.hurt.self:
       default: true

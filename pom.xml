@@ -2,13 +2,31 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ericdebouwer</groupId>
   <artifactId>PetDragon</artifactId>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
   <repositories>
         <repository>
         <id>spigot-repo</id>
         <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
    <dependencies>
     	<dependency>
            <groupId>org.spigotmc</groupId>
@@ -16,6 +34,11 @@
            <version>1.15.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     	</dependency>
+       <dependency>
+           <groupId>org.jetbrains</groupId>
+           <artifactId>annotations</artifactId>
+           <version>16.0.2</version>
+       </dependency>
     	<dependency>
            <groupId>org.spigotmc...</groupId>
            <artifactId>spigot</artifactId>

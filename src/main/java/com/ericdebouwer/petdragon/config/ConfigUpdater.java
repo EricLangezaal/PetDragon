@@ -1,4 +1,4 @@
-package com.ericdebouwer.petdragon;
+package com.ericdebouwer.petdragon.config;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

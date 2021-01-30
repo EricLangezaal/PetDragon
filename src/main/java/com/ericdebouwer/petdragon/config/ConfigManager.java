@@ -1,4 +1,4 @@
-package com.ericdebouwer.petdragon;
+package com.ericdebouwer.petdragon.config;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
+import com.ericdebouwer.petdragon.PetDragon;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -19,9 +21,9 @@ import com.google.common.collect.ImmutableMap;
 
 public class ConfigManager {
 	
-	private PetDragon plugin;
+	private final PetDragon plugin;
 	private final String MESSAGES_PREFIX = "messages.";
-	private boolean isValid = true;
+	private boolean isValid;
 	
 	public boolean checkUpdates = true;
 	
@@ -34,10 +36,12 @@ public class ConfigManager {
 	public boolean damageEntities = true;
 	public boolean interactEntities = true;
 	public double speedMultiplier = 1.0;
+	public double shootCooldown = 2.0;
 	public int maxDragons = Integer.MAX_VALUE;
 	public boolean clickToRemove = false;
 	private String pluginPrefix = "";
 	public String dragonEggName = "";
+	public boolean alwaysUseUpEgg = true;
 	
 	
 	public ConfigManager(PetDragon plugin){
@@ -72,7 +76,8 @@ public class ConfigManager {
 		checkUpdates = plugin.getConfig().getBoolean("check-for-updates");
 		
 		dragonEggName = ChatColor.translateAlternateColorCodes('§', plugin.getConfig().getString("dragon-egg-name", ""));
-		
+		alwaysUseUpEgg = plugin.getConfig().getBoolean("always-use-up-egg");
+
 		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride");
 		leftClickRide = plugin.getConfig().getBoolean("left-click-to-ride");
 		deathAnimation = plugin.getConfig().getBoolean("do-death-animation");
@@ -84,7 +89,8 @@ public class ConfigManager {
 		
 		damageEntities = plugin.getConfig().getBoolean("do-entity-damage");
 		interactEntities = plugin.getConfig().getBoolean("do-entity-interact");
-		
+
+		shootCooldown = plugin.getConfig().getDouble("shoot-cooldown-seconds");
 		speedMultiplier = plugin.getConfig().getDouble("speed-multiplier");
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player");
 		
@@ -102,7 +108,7 @@ public class ConfigManager {
 		String colorMsg = ChatColor.translateAlternateColorCodes('§', this.pluginPrefix + msg);
 		if (replacements != null){
 			for (Map.Entry<String, String> entry: replacements.entrySet()){
-				colorMsg = colorMsg.replaceAll("\\{" + entry.getKey() + "\\}", entry.getValue());
+				colorMsg = colorMsg.replace( "{" + entry.getKey() + "}", entry.getValue());
 			}
 		}
 		return colorMsg;	

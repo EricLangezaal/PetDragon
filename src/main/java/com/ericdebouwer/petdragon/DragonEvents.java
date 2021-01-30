@@ -2,10 +2,8 @@ package com.ericdebouwer.petdragon;
 
 import java.util.Arrays;
 
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.EnderDragonPart;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -19,7 +17,6 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class DragonEvents implements Listener {
@@ -32,12 +29,10 @@ public class DragonEvents implements Listener {
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e){
-		new BukkitRunnable() {
-			public void run() {
-				Entity vehicle = e.getPlayer().getVehicle();
-				plugin.getFactory().handleDragonReset(vehicle);
-			}
-		}.runTask(plugin);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+			Entity vehicle = e.getPlayer().getVehicle();
+			plugin.getFactory().handleDragonReset(vehicle);
+		});
 	}
 	
 	@EventHandler
@@ -66,12 +61,20 @@ public class DragonEvents implements Listener {
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void entityDamage(EntityDamageByEntityEvent e){
-		if (!plugin.getFactory().isPetDragon(e.getDamager())) return;
+		Entity damager = e.getDamager();
+		if (damager instanceof AreaEffectCloud){
+			AreaEffectCloud cloud = (AreaEffectCloud) damager;
+			if (cloud.getSource() instanceof Entity) {
+				damager = (Entity) cloud.getSource();
+			}
+		}
+
+		if (!plugin.getFactory().isPetDragon(damager)) return;
 		if (!plugin.getConfigManager().damageEntities) e.setCancelled(true);
 		if (!(e.getEntity() instanceof Player)) return;
 		
 		Player player = (Player) e.getEntity();
-		if (player.getUniqueId().equals(plugin.getFactory().getOwner((EnderDragon) e.getDamager())) || 
+		if (player.getUniqueId().equals(plugin.getFactory().getOwner((EnderDragon) damager)) ||
 				e.getDamager().getPassengers().contains(e.getEntity())) e.setCancelled(true); 
 	}
 	

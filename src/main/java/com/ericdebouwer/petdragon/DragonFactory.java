@@ -4,10 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import com.ericdebouwer.petdragon.config.Message;
+import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -15,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import com.ericdebouwer.enderdragonNMS.PetEnderDragon;
+import com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon;
 import com.google.common.collect.ImmutableMap;
 
 public class DragonFactory {
@@ -40,7 +38,7 @@ public class DragonFactory {
     	String version = packageName.substring(packageName.lastIndexOf('.') + 1);
 
     	try {
-        	final Class<?> clazz = Class.forName("com.ericdebouwer.enderdragonNMS.PetEnderDragon_" + version);
+        	final Class<?> clazz = Class.forName("com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon_" + version);
         	if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
         		this.dragonClass = clazz;
         		return true;
@@ -88,7 +86,8 @@ public class DragonFactory {
 		}
 		UUID owner = getOwner(dragon);
 		if (!p.hasPermission("petdragon.bypass.owner") && owner != null && !p.getUniqueId().equals(owner)){
-			plugin.getConfigManager().sendMessage(p, Message.NO_JOYRIDE, ImmutableMap.of("owner", Bukkit.getOfflinePlayer(owner).getName()));
+			String ownerName = Bukkit.getOfflinePlayer(owner).getName();
+			plugin.getConfigManager().sendMessage(p, Message.NO_JOYRIDE, ImmutableMap.of("owner", ownerName == null ? "unknown" : ownerName));
 			return true;
 		}
 		dragon.addPassenger(p);
@@ -121,8 +120,8 @@ public class DragonFactory {
 		return petDragon;	
 	}
 	
-	public Set<EnderDragon> getDragons(Player player){
-		Set<EnderDragon> result = new HashSet<EnderDragon>();
+	public Set<EnderDragon> getDragons(OfflinePlayer player){
+		Set<EnderDragon> result = new HashSet<>();
 		for (World world: Bukkit.getWorlds()){
 			for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
 				if (!isPetDragon(dragon)) continue;

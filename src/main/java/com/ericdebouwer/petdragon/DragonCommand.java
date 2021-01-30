@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.ericdebouwer.petdragon.config.ConfigManager;
+import com.ericdebouwer.petdragon.config.Message;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -25,7 +28,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ericdebouwer.enderdragonNMS.PetEnderDragon;
+import com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon;
 import com.google.common.collect.ImmutableMap;
 
 public class DragonCommand implements CommandExecutor, TabCompleter {
@@ -34,6 +37,7 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 	ConfigManager manager;
 	
 	public final String DRAGON_COMMAND = "dragon";
+
 	public final String SPAWN_ARG = "spawn";
 	public final String RELOAD_ARG = "reload";
 	public final String REMOVE_ARG = "remove";
@@ -113,10 +117,19 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 				List<Entity> nearbyEnts = (List<Entity>) player.getWorld().getNearbyEntities(
 						player.getLocation(), range, range, range, (e) -> plugin.getFactory().isPetDragon(e));
 				nearbyEnts.sort(Comparator.comparingDouble((e) -> 
-					((Entity)e).getLocation().distanceSquared(player.getLocation())));
+					e.getLocation().distanceSquared(player.getLocation())));
 				
 				if (!nearbyEnts.isEmpty()){
-					plugin.getFactory().removeDragon((EnderDragon) nearbyEnts.get(0));
+					EnderDragon dragon = (EnderDragon) nearbyEnts.get(0);
+					UUID owner = plugin.getFactory().getOwner(dragon);
+					if (!player.hasPermission("petdragon.bypass.remove") && !player.getUniqueId().equals(owner)){
+						String ownerName = Bukkit.getOfflinePlayer(owner).getName();
+						manager.sendMessage(player, Message.NOT_YOURS_TO_REMOVE,
+								ImmutableMap.of("owner", ownerName == null ? "unknown" : ownerName));
+						return true;
+					}
+
+					plugin.getFactory().removeDragon(dragon);
 					found = true;
 				}
 			}
@@ -133,7 +146,9 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 			manager.sendMessage(player, Message.LOCATED_DRAGONS, ImmutableMap.of("amount", "" + dragons.size()));
 			for (EnderDragon dragon: dragons){
 				Location loc = dragon.getLocation();
-				String text = manager.parseMessage(Message.LOCATE_ONE, ImmutableMap.of("x", "" +loc.getBlockX(), "y", "" + loc.getBlockY(), "z", "" + loc.getBlockZ(), "world", loc.getWorld().getName()));
+				String text = manager.parseMessage(Message.LOCATE_ONE, ImmutableMap.of("x", "" +loc.getBlockX(),
+						"y", "" + loc.getBlockY(), "z", "" + loc.getBlockZ(), "world", loc.getWorld().getName()));
+
 				if (manager.clickToRemove) {
 					TextComponent message = new TextComponent(text);
 					message.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/"+ DRAGON_COMMAND + " " + REMOVE_ARG + " "+ dragon.getUniqueId()));
@@ -163,7 +178,7 @@ public class DragonCommand implements CommandExecutor, TabCompleter {
 					).collect(Collectors.toList());
 		}
 		if (args.length == 2 && args[0].equalsIgnoreCase(REMOVE_ARG)){
-			return Arrays.asList("3", "5", "10").stream().
+			return Stream.of("3", "5", "10").
 					filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
