@@ -14,6 +14,27 @@ plugin-prefix: "§r[§5§lPetDragon§r] "
 # whether the plugin will check for updates on start-up
 check-for-updates: true
 
+database:
+   # Only one can be enabled at the same time!
+   sqlite:
+      enabled: true
+      # you don't have to change this
+      driver: 'org.sqlite.JDBC'
+      database-name: 'PetDragon.db'
+   mysql:
+      enabled: false
+      # you don't have to change this
+      driver: 'com.mysql.jdbc.Driver'
+
+      # Change these!
+      database-name: 'mydatabase'
+      host: '127.0.0.1'
+      port: 3306
+      username: 'username'
+      password: 'password'
+      useSSL: true
+
+
 # Whether or not using a mouse button with empty hand allows you to ride a dragon
 # Both can be enabled at the same time
 right-click-to-ride: true
@@ -27,11 +48,11 @@ do-block-destruction: true
 fly-through-blocks: true
 
 # If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
-# Those entities will still be launched away, see option below
+# The owner or passengers of a dragon will always be protected from its damage regardless
 do-entity-damage: true
 
-# If a PetDragon should interact at all with other entities (swoop them away)
-# if set to 'false' PetDragons will also NOT damage other entities
+# If a PetDragon should swoop other entities nearby (launch them away)
+# The owner or passengers of a dragon will always be protected from its damage regardless
 do-entity-interact: true
 
 # Whether or not a PetDragon will show the enderdragon death animation when it dies
@@ -41,17 +62,20 @@ do-death-animation: true
 silent-dragons: false
 
 # How many SECONDS a player has to wait before his dragon can shoot again
-# Keep it as a double so 2.0 instead of 2 !
 shoot-cooldown-seconds: 2.0
 
 # Control how fast a dragon can fly. Default is one, which is approximately 1 block per tick (20 blocks/second). 
 # Setting this to to zero, negatives or really high numbers might have unexpected consequences!
-# Keep it as a double so 1.0 instead of 1 !
 speed-multiplier: 1.0
 
-# Maximum amount of dragons a player can spawn, all worlds combined (only counts loaded worlds)
-# V1.4 Spawn eggs ignore this setting, so that is another way to control PetDragon amount (e.g. by giving 1 egg per player)
-# Players with permission 'petdragon.bypass.dragonlimit' will ignore this
+# how many damage a hit by this body part of the dragon should do
+# only works if do-entity-damage is enabled
+dragon-head-damage: 10.0
+dragon-wing-damage: 5.0
+
+# Maximum amount of dragons a player can spawn, all worlds combined
+# Spawn eggs ignore this setting, so that is another way to control PetDragon amount (e.g. by giving 1 egg per player)
+# Players with permission 'petdragon.bypass.dragonlimit' will ignore this too
 max-dragons-per-player: 3
 
 # Whether or not clicking on the located-a-dragon message will remove that dragon

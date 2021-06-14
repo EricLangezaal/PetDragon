@@ -51,7 +51,6 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 	public void copyFrom(EnderDragon dragon) {
 		EntityEnderDragon other = ((CraftEnderDragon) dragon).getHandle();
 		NBTTagCompound nbt = other.save(new NBTTagCompound());
-		nbt.remove("UUID");
 		nbt.remove("Passengers");
 		nbt.remove("WorldUUIDLeast");
 		nbt.remove("WorldUUIDMost");

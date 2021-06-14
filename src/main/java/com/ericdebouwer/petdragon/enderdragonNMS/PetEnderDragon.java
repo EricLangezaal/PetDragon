@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.EnderDragonPart;
 
 public interface PetEnderDragon {
 	

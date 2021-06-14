@@ -2,12 +2,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ericdebouwer</groupId>
   <artifactId>PetDragon</artifactId>
-  <version>1.4.2</version>
+  <version>1.5</version>
   <repositories>
         <repository>
         <id>spigot-repo</id>
         <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
+      </repository>
+      <repository>
+          <id>sonatype</id>
+          <url>https://oss.sonatype.org/content/groups/public/</url>
+      </repository>
    </repositories>
     <build>
         <plugins>
@@ -25,6 +29,39 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>com.ericdebouwer.petdragon.shaded.zaxxer.hikari</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
    <dependencies>
@@ -34,11 +71,6 @@
            <version>1.15.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     	</dependency>
-       <dependency>
-           <groupId>org.jetbrains</groupId>
-           <artifactId>annotations</artifactId>
-           <version>16.0.2</version>
-       </dependency>
     	<dependency>
            <groupId>org.spigotmc...</groupId>
            <artifactId>spigot</artifactId>
@@ -69,11 +101,18 @@
            <version>1.16.4-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     	</dependency>
-       	<dependency>
-  			<groupId>com.google.guava</groupId>
-  			<artifactId>guava</artifactId>
-  			<version>29.0-android</version>
-	  	</dependency>
+       <dependency>
+           <groupId>com.zaxxer</groupId>
+           <artifactId>HikariCP</artifactId>
+           <version>4.0.2</version>
+           <scope>compile</scope>
+           <exclusions>
+               <exclusion>
+                   <groupId>org.slf4j</groupId>
+                   <artifactId>slf4j-api</artifactId>
+               </exclusion>
+           </exclusions>
+       </dependency>
      </dependencies>
      <properties>
   		<maven.compiler.source>1.8</maven.compiler.source>

@@ -37,6 +37,10 @@ public class ConfigManager {
 	public boolean interactEntities = true;
 	public double speedMultiplier = 1.0;
 	public double shootCooldown = 2.0;
+
+	public float headDamage = 10.0F;
+	public float wingDamage = 5.0F;
+
 	public int maxDragons = Integer.MAX_VALUE;
 	public boolean clickToRemove = false;
 	private String pluginPrefix = "";
@@ -92,6 +96,10 @@ public class ConfigManager {
 
 		shootCooldown = plugin.getConfig().getDouble("shoot-cooldown-seconds");
 		speedMultiplier = plugin.getConfig().getDouble("speed-multiplier");
+
+		headDamage = (float) plugin.getConfig().getDouble("dragon-head-damage");
+		wingDamage = (float) plugin.getConfig().getDouble("dragon-wing-damage");
+
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player");
 		
 		clickToRemove = plugin.getConfig().getBoolean("click-to-remove");
@@ -119,22 +127,29 @@ public class ConfigManager {
 		if (msg != null) p.sendMessage(msg);
 	}
 	
-	private boolean validateSection(String template_path, String real_path, boolean deep, boolean log){
+	private boolean validateSection(String templatePath, String realPath, boolean deep, boolean log){
 		InputStream templateFile = getClass().getClassLoader().getResourceAsStream("config.yml");
         FileConfiguration templateConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(templateFile));
         
-        ConfigurationSection real_section = plugin.getConfig().getConfigurationSection(real_path);
-        ConfigurationSection template_section = templateConfig.getConfigurationSection(template_path);
+        ConfigurationSection realSection = plugin.getConfig().getConfigurationSection(realPath);
+        ConfigurationSection templateSection = templateConfig.getConfigurationSection(templatePath);
 
-        if (real_section == null || template_section == null) return false;
+        if (realSection == null || templateSection == null) return false;
         
- 		for(String key: template_section.getKeys(deep)){
- 			if (!real_section.getKeys(deep).contains(key) || template_section.get(key).getClass() != real_section.get(key).getClass()){
+ 		for(String key: templateSection.getKeys(deep)){
+ 			if (!realSection.getKeys(deep).contains(key) || !isSameType(templateSection.get(key), realSection.get(key))){
  				if (log) Bukkit.getLogger().log(Level.WARNING, plugin.logPrefix + "Missing or invalid datatype key '" + key + "' and possibly others in config.yml");
  				return false;
  			}
  		}
  		return true;
+	}
+
+	private boolean isSameType(Object template, Object real){
+		if (template instanceof Number && real instanceof Number){
+			return true;
+		}
+		return template.getClass() == real.getClass();
 	}
 	
 	public boolean handleUpdate(){

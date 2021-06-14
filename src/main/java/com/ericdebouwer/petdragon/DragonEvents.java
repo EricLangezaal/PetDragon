@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon;
 
 import java.util.Arrays;
 
+import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -10,7 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -50,16 +51,25 @@ public class DragonEvents implements Listener {
 			plugin.getFactory().handleDragonReset(ent);
 		}
 	}
-	
-	
+
+	/*
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void explode(EntityExplodeEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getEntity())) return;
 		if (plugin.getConfigManager().doGriefing) return;
 		e.setCancelled(true);
 	}
+	*/
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onSwoop(DragonSwoopEvent event){
+		if (!(event.getTarget() instanceof Player)) return;
+		Player target = (Player) event.getTarget();
+
+		if (shouldCancelAttack(event.getEntity(), target)) event.setCancelled(true);
+	}
 	
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled = true)
 	public void entityDamage(EntityDamageByEntityEvent e){
 		Entity damager = e.getDamager();
 		if (damager instanceof AreaEffectCloud){
@@ -74,8 +84,12 @@ public class DragonEvents implements Listener {
 		if (!(e.getEntity() instanceof Player)) return;
 		
 		Player player = (Player) e.getEntity();
-		if (player.getUniqueId().equals(plugin.getFactory().getOwner((EnderDragon) damager)) ||
-				e.getDamager().getPassengers().contains(e.getEntity())) e.setCancelled(true); 
+		if (shouldCancelAttack((EnderDragon) damager, player)) e.setCancelled(true);
+	}
+
+	private boolean shouldCancelAttack(EnderDragon dragon, Player player){
+		return player.getUniqueId().equals(plugin.getFactory().getOwner(dragon)) ||
+				dragon.getPassengers().contains(player);
 	}
 	
 	//stop kick for flying
@@ -89,9 +103,10 @@ public class DragonEvents implements Listener {
 	@EventHandler
 	public void dragonDismount(EntityDismountEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getDismounted())) return;
+		plugin.getDragonRegistry().updateDragon((EnderDragon) e.getDismounted());
 		if (!(e.getEntity() instanceof Player)) return;
 		Player player = (Player) e.getEntity();
-		//prevent launch and fall damage
+		//prevent fall damage
 		player.setNoDamageTicks(150);
 	}
 	
@@ -100,6 +115,12 @@ public class DragonEvents implements Listener {
 		if (!plugin.getFactory().isPetDragon(e.getEntity().getVehicle())) return;
 		if (Arrays.asList(DamageCause.FLY_INTO_WALL, DamageCause.ENTITY_EXPLOSION, DamageCause.DRAGON_BREATH, DamageCause.FALL)
 				.contains(e.getCause())) e.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onDeath(EntityDeathEvent event){
+		if (!plugin.getFactory().isPetDragon(event.getEntity())) return;
+		plugin.getDragonRegistry().setRemoved((EnderDragon) event.getEntity());
 	}
 	
 	@EventHandler
@@ -113,5 +134,6 @@ public class DragonEvents implements Listener {
 		EnderDragon dragon = part.getParent();
 		plugin.getFactory().tryRide(e.getPlayer(), dragon);
 	}
+
 	
 }

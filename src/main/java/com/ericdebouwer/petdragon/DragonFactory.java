@@ -6,10 +6,7 @@ import java.util.UUID;
 
 import com.ericdebouwer.petdragon.config.Message;
 import org.bukkit.*;
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -20,7 +17,7 @@ public class DragonFactory {
 	
 	PetDragon plugin;
 	Class<?> dragonClass;
-	private boolean correctVersion = true;
+	private boolean correctVersion;
 	public NamespacedKey ownerKey;
 
 	public DragonFactory(PetDragon plugin){
@@ -48,12 +45,19 @@ public class DragonFactory {
    		}
     	return false;
 	}
-	
+
 	public PetEnderDragon create(Location loc, UUID owner){
+		return this.create(loc, owner, false);
+	}
+	
+	private PetEnderDragon create(Location loc, UUID owner, boolean replace){
 		try {
 			PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(Location.class, PetDragon.class).newInstance(loc, plugin);
 			if (owner != null){
 				dragon.getEntity().getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.toString());
+			}
+			if (!replace){
+				plugin.getDragonRegistry().updateDragon(dragon.getEntity());
 			}
 			return dragon;
 		} catch (Exception e){
@@ -71,12 +75,13 @@ public class DragonFactory {
 		UUID owner = this.getOwner(dragon.getEntity());
 		if (owner == null) return true;
 		if (owner.equals(player.getUniqueId())) return player.hasPermission("petdragon.hurt.self");
-		if (player.hasPermission("petdragon.hurt.others")) return true;
-		return false;
+		return player.hasPermission("petdragon.hurt.others");
 	}
 	
 	public boolean tryRide(HumanEntity p, EnderDragon dragon){
 		if (!isPetDragon(dragon)) return false;
+		plugin.getDragonRegistry().updateDragon(dragon);
+
 		ItemStack handHeld = p.getInventory().getItemInMainHand();
 		if ( !(handHeld == null || handHeld.getType().isAir())) return false;
 		
@@ -97,46 +102,27 @@ public class DragonFactory {
 	public void reloadDragons(){
 		for (World w: Bukkit.getWorlds()){
 			for (EnderDragon dragon: w.getEntitiesByClass(EnderDragon.class)){
-				this.handleDragonReset(dragon);
+				plugin.getFactory().handleDragonReset(dragon);
 			}
 		}
 	}
-	
-	
+
 	public void handleDragonReset(Entity ent){
 		if (!isPetDragon(ent)) return;
-		//Bukkit.getLogger().log(Level.INFO, "Dragon reset at: " + ent.getLocation().toString());
-		removeDragon((EnderDragon) ent);
-		PetEnderDragon dragon = copy((EnderDragon) ent);
-		dragon.spawn();
-		for (Entity passenger: ent.getPassengers()){
-			dragon.getEntity().addPassenger(passenger);
-		}	
-	}
-	
-	public PetEnderDragon copy(EnderDragon dragon){
-		PetEnderDragon petDragon = this.create(dragon.getLocation(), null);
-		petDragon.copyFrom(dragon);
-		return petDragon;	
-	}
-	
-	public Set<EnderDragon> getDragons(OfflinePlayer player){
-		Set<EnderDragon> result = new HashSet<>();
-		for (World world: Bukkit.getWorlds()){
-			for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
-				if (!isPetDragon(dragon)) continue;
-				if (!player.getUniqueId().equals(getOwner(dragon))) continue;
-				
-				result.add(dragon);
-			}
-		}
-		return result;
-	}
-	
-	// all remove calls in one place for future
-	public void removeDragon(EnderDragon dragon){
+		EnderDragon dragon = (EnderDragon) ent;
+
 		dragon.remove();
+
+		PetEnderDragon petDragon = this.create(dragon.getLocation(), null, true);
+		petDragon.copyFrom(dragon);
+		petDragon.spawn();
+		for (Entity passenger: dragon.getPassengers()){
+			petDragon.getEntity().addPassenger(passenger);
+		}
+
+		plugin.getDragonRegistry().handleDragonReset(dragon, () -> petDragon.getEntity().remove());
 	}
+
 	
 	public UUID getOwner(EnderDragon dragon){
 		if (!dragon.getPersistentDataContainer().has(ownerKey, PersistentDataType.STRING)) return null;

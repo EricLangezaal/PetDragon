@@ -1,5 +1,5 @@
 main: com.ericdebouwer.petdragon.PetDragon
-version: 1.4.2
+version: 1.5
 load: STARTUP
 api-version: 1.14
 website: "https://www.spigotmc.org/resources/82744"
