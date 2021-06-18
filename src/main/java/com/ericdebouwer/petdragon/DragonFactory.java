@@ -1,6 +1,7 @@
 package com.ericdebouwer.petdragon;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,9 +57,6 @@ public class DragonFactory {
 			if (owner != null){
 				dragon.getEntity().getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.toString());
 			}
-			if (!replace){
-				plugin.getDragonRegistry().updateDragon(dragon.getEntity());
-			}
 			return dragon;
 		} catch (Exception e){
 			e.printStackTrace();
@@ -80,7 +78,6 @@ public class DragonFactory {
 	
 	public boolean tryRide(HumanEntity p, EnderDragon dragon){
 		if (!isPetDragon(dragon)) return false;
-		plugin.getDragonRegistry().updateDragon(dragon);
 
 		ItemStack handHeld = p.getInventory().getItemInMainHand();
 		if ( !(handHeld == null || handHeld.getType().isAir())) return false;
@@ -111,19 +108,29 @@ public class DragonFactory {
 		if (!isPetDragon(ent)) return;
 		EnderDragon dragon = (EnderDragon) ent;
 
+		List<Entity> passengers = dragon.getPassengers();
 		dragon.remove();
 
 		PetEnderDragon petDragon = this.create(dragon.getLocation(), null, true);
 		petDragon.copyFrom(dragon);
 		petDragon.spawn();
-		for (Entity passenger: dragon.getPassengers()){
-			petDragon.getEntity().addPassenger(passenger);
-		}
 
-		plugin.getDragonRegistry().handleDragonReset(dragon, () -> petDragon.getEntity().remove());
+		passengers.forEach(p -> petDragon.getEntity().addPassenger(p));
 	}
 
-	
+	public Set<EnderDragon> getDragons(OfflinePlayer player){
+		Set<EnderDragon> result = new HashSet<>();
+		for (World world: Bukkit.getWorlds()){
+			for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
+				if (!isPetDragon(dragon)) continue;
+				if (!player.getUniqueId().equals(getOwner(dragon))) continue;
+
+				result.add(dragon);
+			}
+		}
+		return result;
+	}
+
 	public UUID getOwner(EnderDragon dragon){
 		if (!dragon.getPersistentDataContainer().has(ownerKey, PersistentDataType.STRING)) return null;
 		

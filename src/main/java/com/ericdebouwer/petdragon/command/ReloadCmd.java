@@ -14,7 +14,6 @@ public class ReloadCmd extends SubCommand {
     boolean perform(CommandSender sender, String[] args) {
         configManager.reloadConfig();
         plugin.getFactory().reloadDragons();
-        plugin.getDragonRegistry().setupConnection();
         if (configManager.isValid()) configManager.sendMessage(sender, Message.RELOAD_SUCCESS, null);
         else configManager.sendMessage(sender, Message.RELOAD_FAIL, null);
         return true;

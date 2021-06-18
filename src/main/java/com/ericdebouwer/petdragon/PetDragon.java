@@ -4,7 +4,6 @@ import java.util.logging.Level;
 
 import com.ericdebouwer.petdragon.command.BaseCommand;
 import com.ericdebouwer.petdragon.config.ConfigManager;
-import com.ericdebouwer.petdragon.database.DragonRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,26 +11,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PetDragon extends JavaPlugin  {
 	
-	//SUPPORTED:
-	// 1.16.1, 1.16.2, 1.16.3, 1.16.4, 1.16.5 (tested)
+	// SUPPORTED:
+	// 1.17
+	// 1.16, 1.16.1, 1.16.2, 1.16.3, 1.16.4, 1.16.5 (tested)
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
 	// 1.14.4, 1.14.x(not tested)
-
-	//TODO: database upsert fixen
-	//TODO: MySQL testen
-	//TODO: all NMS classes updaten
-	//TODO: testen (veel)
-	//DONE: double/int ook goed rekenen bij config validatie
-	//DONE: Database voor dragon registry. Zowel MySQL als SQLite
-	//DONE: rewritten NMS from scratch. faster & better
-	//DONE: Possible to stop dragons from launching entities without cancelling damage. Even API event for it now
-	//DONE: configurable head and wing damage amount. Improved config validator to allow all numbers
 	
 	public String logPrefix;
 	private ConfigManager configManager;
 	private DragonFactory dragonFactory;
 	private EggManager eggManager;
-	private DragonRegistry dragonRegistry;
 	
 	@Override
 	public void onEnable(){
@@ -54,16 +43,14 @@ public class PetDragon extends JavaPlugin  {
 		}
 		getLogger().log(Level.INFO, "Configuration has been successfully loaded!");
 
-		dragonRegistry = new DragonRegistry(this);
-
 		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
 			getLogger().info("If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL"));
 
 		new BaseCommand(this);
-		//new DragonCommand(this);
+
 		eggManager = new EggManager(this);
-		DragonEvents dragonEvents = new DragonEvents(this);
-		getServer().getPluginManager().registerEvents(dragonEvents, this);
+		DragonListener dragonListener = new DragonListener(this);
+		getServer().getPluginManager().registerEvents(dragonListener, this);
 		
 		if (configManager.checkUpdates) {
 			new UpdateChecker(this)
@@ -77,11 +64,6 @@ public class PetDragon extends JavaPlugin  {
 			.run();
 		}
 	}
-
-	@Override
-	public void onDisable(){
-		if (dragonRegistry != null) dragonRegistry.close();
-	}
 	
 	public ConfigManager getConfigManager(){
 		return this.configManager;
@@ -94,7 +76,4 @@ public class PetDragon extends JavaPlugin  {
 	public EggManager getEggManager(){
 		return this.eggManager;
 	}
-	
-	public DragonRegistry getDragonRegistry() {return this.dragonRegistry;}
-	
 }

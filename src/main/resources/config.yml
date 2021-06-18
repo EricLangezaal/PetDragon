@@ -14,27 +14,6 @@ plugin-prefix: "§r[§5§lPetDragon§r] "
 # whether the plugin will check for updates on start-up
 check-for-updates: true
 
-database:
-   # Only one can be enabled at the same time!
-   sqlite:
-      enabled: true
-      # you don't have to change this
-      driver: 'org.sqlite.JDBC'
-      database-name: 'PetDragon.db'
-   mysql:
-      enabled: false
-      # you don't have to change this
-      driver: 'com.mysql.jdbc.Driver'
-
-      # Change these!
-      database-name: 'mydatabase'
-      host: '127.0.0.1'
-      port: 3306
-      username: 'username'
-      password: 'password'
-      useSSL: true
-
-
 # Whether or not using a mouse button with empty hand allows you to ride a dragon
 # Both can be enabled at the same time
 right-click-to-ride: true
@@ -47,7 +26,7 @@ do-block-destruction: true
 # If set to 'false' it will still break some blocks, see the option above to disable that
 fly-through-blocks: true
 
-# If a PetDragon will damage other entities when flying through them (fireballs will work regardless)
+# If a PetDragon will damage other entities when flying through them, also includes fireball damage
 # The owner or passengers of a dragon will always be protected from its damage regardless
 do-entity-damage: true
 
@@ -104,7 +83,7 @@ messages:
    reload-success: "§aThe plugin has been successfully reloaded!"
    reload-fail: "§cReloading the configuration failed! See the console for more details."
    
-   command-usage: "§6USAGE    §r/dragon §7<spawn | locate | remove | egg>"
+   command-usage: "§6USAGE    §r/dragon §7<spawn | locate | remove | reload | egg>"
 
    dragon-spawned: "§aA new §5§lPetDragon§r§a has been spawned above you!"
 

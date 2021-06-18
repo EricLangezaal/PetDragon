@@ -19,23 +19,18 @@ public class SpawnCmd extends SubCommand {
     boolean perform(CommandSender sender, String[] args) {
         Player player = (Player) sender;
 
-        CompletableFuture<Boolean> shouldSpawn = CompletableFuture.completedFuture(true);
         if (!player.hasPermission("petdragon.bypass.dragonlimit")) {
-            shouldSpawn = plugin.getDragonRegistry().fetchDragonCount(player.getUniqueId()).thenApply((count) -> {
-                if (count >= plugin.getConfigManager().maxDragons) {
-                    configManager.sendMessage(player, Message.DRAGON_LIMIT, ImmutableMap.of("amount", "" + count));
-                    return false;
-                }
+            int dragonCount = plugin.getFactory().getDragons(player).size();
+            if (dragonCount >= plugin.getConfigManager().maxDragons){
+                configManager.sendMessage(player, Message.DRAGON_LIMIT, ImmutableMap.of("amount", "" + dragonCount));
                 return true;
-            });
-        }
-        shouldSpawn.thenAccept((willSpawn) -> {
-            if (willSpawn){
-                PetEnderDragon dragon = plugin.getFactory().create(player.getLocation().add(0, 2, 0), player.getUniqueId());
-                dragon.spawn();
-                configManager.sendMessage(player, Message.DRAGON_SPAWNED, null);
             }
-        });
+        }
+
+        PetEnderDragon dragon = plugin.getFactory().create(player.getLocation().add(0, 2, 0), player.getUniqueId());
+        dragon.spawn();
+        configManager.sendMessage(player, Message.DRAGON_SPAWNED, null);
+
         return true;
     }
 }

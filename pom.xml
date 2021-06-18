@@ -52,15 +52,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <minimizeJar>true</minimizeJar>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.zaxxer.hikari</pattern>
-                            <shadedPattern>com.ericdebouwer.petdragon.shaded.zaxxer.hikari</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -71,8 +62,9 @@
            <version>1.15.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     	</dependency>
+
     	<dependency>
-           <groupId>org.spigotmc...</groupId>
+           <groupId>org.spigotmc</groupId>
            <artifactId>spigot</artifactId>
            <version>1.14.4-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
@@ -84,13 +76,13 @@
            <scope>provided</scope>
     	</dependency>
        	<dependency>
-           <groupId>org.spigotmc</groupId>
+           <groupId>org.spigotmc..</groupId>
            <artifactId>spigot</artifactId>
            <version>1.16.1-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     	</dependency>
     	<dependency>
-           <groupId>org.spigotmc..</groupId>
+           <groupId>org.spigotmc...</groupId>
            <artifactId>spigot</artifactId>
            <version>1.16.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
@@ -102,6 +94,12 @@
            <scope>provided</scope>
     	</dependency>
        <dependency>
+           <groupId>org.spigotmc.....</groupId>
+           <artifactId>spigot</artifactId>
+           <version>1.17-R0.1-SNAPSHOT</version>
+           <scope>provided</scope>
+       </dependency>
+       <!--<dependency>
            <groupId>com.zaxxer</groupId>
            <artifactId>HikariCP</artifactId>
            <version>4.0.2</version>
@@ -112,10 +110,11 @@
                    <artifactId>slf4j-api</artifactId>
                </exclusion>
            </exclusions>
-       </dependency>
+       </dependency> -->
      </dependencies>
      <properties>
   		<maven.compiler.source>1.8</maven.compiler.source>
   		<maven.compiler.target>1.8</maven.compiler.target>
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 </project>

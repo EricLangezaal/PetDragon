@@ -20,11 +20,11 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
-public class DragonEvents implements Listener {
+public class DragonListener implements Listener {
 	
 	PetDragon plugin;
 	
-	public DragonEvents(PetDragon plugin){
+	public DragonListener(PetDragon plugin){
 		this.plugin = plugin;
 	}
 	
@@ -46,20 +46,16 @@ public class DragonEvents implements Listener {
 	
 	@EventHandler
 	public void onLoad(ChunkLoadEvent e){
-		// reset dragons so they will still work
-		for (Entity ent: e.getChunk().getEntities()){
-			plugin.getFactory().handleDragonReset(ent);
-		}
+		Bukkit.getScheduler().runTaskLater(plugin, () -> {
+			if (!e.getChunk().isLoaded()) return;
+
+			for (Entity ent: e.getChunk().getEntities()){
+				plugin.getFactory().handleDragonReset(ent);
+			}
+
+		}, 7); // WIP: see https://hub.spigotmc.org/jira/browse/SPIGOT-6547
 	}
 
-	/*
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void explode(EntityExplodeEvent e){
-		if (!plugin.getFactory().isPetDragon(e.getEntity())) return;
-		if (plugin.getConfigManager().doGriefing) return;
-		e.setCancelled(true);
-	}
-	*/
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onSwoop(DragonSwoopEvent event){
@@ -103,7 +99,6 @@ public class DragonEvents implements Listener {
 	@EventHandler
 	public void dragonDismount(EntityDismountEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getDismounted())) return;
-		plugin.getDragonRegistry().updateDragon((EnderDragon) e.getDismounted());
 		if (!(e.getEntity() instanceof Player)) return;
 		Player player = (Player) e.getEntity();
 		//prevent fall damage
@@ -117,11 +112,6 @@ public class DragonEvents implements Listener {
 				.contains(e.getCause())) e.setCancelled(true);
 	}
 
-	@EventHandler
-	public void onDeath(EntityDeathEvent event){
-		if (!plugin.getFactory().isPetDragon(event.getEntity())) return;
-		plugin.getDragonRegistry().setRemoved((EnderDragon) event.getEntity());
-	}
 	
 	@EventHandler
 	public void interact(PlayerInteractEntityEvent e){

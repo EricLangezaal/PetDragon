@@ -26,12 +26,15 @@ public class RemoveCmd extends SubCommand {
 
         Player player = (Player) sender;
         int range = 3;
-        CompletableFuture<Boolean> futureDidRemove = null;
+        boolean found = false;
 
         if (args.length >= 2){
             try {
-                UUID dragonID = UUID.fromString(args[0]);
-                futureDidRemove = plugin.getDragonRegistry().remove(dragonID);
+                Entity potentialDragon = Bukkit.getEntity(UUID.fromString(args[1]));
+                if (plugin.getFactory().isPetDragon(potentialDragon)){
+                    potentialDragon.remove();
+                    found = true;
+                }
 
             } catch(IllegalArgumentException ila){
                 try {
@@ -44,8 +47,7 @@ public class RemoveCmd extends SubCommand {
                 }
             }
         }
-        if (futureDidRemove == null) {
-            futureDidRemove = CompletableFuture.completedFuture(false);
+        if (!found) {
 
             List<Entity> nearbyEnts = (List<Entity>) player.getWorld().getNearbyEntities(
                     player.getLocation(), range, range, range, (e) -> plugin.getFactory().isPetDragon(e));
@@ -61,15 +63,15 @@ public class RemoveCmd extends SubCommand {
                             ImmutableMap.of("owner", ownerName == null ? "unknown" : ownerName));
                     return true;
                 }
-                futureDidRemove = plugin.getDragonRegistry().remove(dragon.getUniqueId());
+                dragon.remove();
+                found = true;
             }
         }
-        futureDidRemove.thenAccept((found) -> {
-            if (found) configManager.sendMessage(player, Message.DRAGON_REMOVED, null);
-            else configManager.sendMessage(player, Message.DRAGON_NOT_FOUND, null);
-        });
 
-        return false;
+        if (found) configManager.sendMessage(player, Message.DRAGON_REMOVED, null);
+        else configManager.sendMessage(player, Message.DRAGON_NOT_FOUND, null);
+
+        return true;
     }
 
     @Override

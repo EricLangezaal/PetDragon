@@ -68,6 +68,8 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 		nbt.remove("Passengers");
 		nbt.remove("WorldUUIDLeast");
 		nbt.remove("WorldUUIDMost");
+		nbt.remove("UUID");
+		nbt.setBoolean("Silent", plugin.getConfigManager().silent);
 		this.load(nbt);
 	}
 
@@ -267,9 +269,10 @@ public class PetEnderDragon_v1_16_R3 extends EntityEnderDragon implements PetEnd
 					Location loc = this.getBukkitEntity().getLocation();
 					loc.add(forwardDir.clone().multiply(10).setY(-1));
 
-					DragonFireball fireball = loc.getWorld().spawn(loc, DragonFireball.class);
-					fireball.setDirection(forwardDir);
-					fireball.setShooter(this.getEntity());
+					loc.getWorld().spawn(loc, DragonFireball.class, (fireball) -> {
+						fireball.setDirection(forwardDir);
+						fireball.setShooter(this.getEntity());
+					});
 					lastShot = System.currentTimeMillis();
 				}
 			} catch (IllegalArgumentException | IllegalAccessException ignore){

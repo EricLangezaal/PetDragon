@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -83,10 +84,9 @@ public class PetDragonAPI {
      * @return the UUID of the player who owns this PetDragon if applicable.
      */
     public @Nullable UUID getOwningPlayer(@Nonnull EnderDragon dragon){
-        return this.factory.getOwner(dragon);
+        return this.factory.getOwner(Objects.requireNonNull(dragon));
     }
 
-    @Deprecated
     /**
      *
      * Get all dragons that are currently <b>loaded</b> and owned by a specific player.
@@ -94,16 +94,7 @@ public class PetDragonAPI {
      * @return a set of EnderDragons corresponding to all <b>loaded</b> PetDragons for this player.
      */
     public @Nonnull Set<EnderDragon> getDragons(@Nonnull OfflinePlayer player){
-        Set<EnderDragon> result = new HashSet<>();
-        for (World world: Bukkit.getWorlds()){
-            for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
-                if (!isPetDragon(dragon)) continue;
-                if (!player.getUniqueId().equals(this.factory.getOwner(dragon))) continue;
-
-                result.add(dragon);
-            }
-        }
-        return result;
+        return this.factory.getDragons(Objects.requireNonNull(player));
     }
 
 
