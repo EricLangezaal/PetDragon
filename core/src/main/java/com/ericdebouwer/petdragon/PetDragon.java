@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon;
 
 import com.ericdebouwer.petdragon.command.BaseCommand;
 import com.ericdebouwer.petdragon.config.ConfigManager;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,22 +10,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Level;
 
 
-public class PetDragon extends JavaPlugin  {
+public class PetDragon extends JavaPlugin {
 	
 	// SUPPORTED:
-	// 1.17
+	// 1.18z
+	// 1.17, 1.17.1
 	// 1.16, 1.16.1, 1.16.2, 1.16.3, 1.16.4, 1.16.5 (tested)
 	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
-	// 1.14.4, 1.14.x(not tested)
-	
-	public String logPrefix;
+	// 1.14.4, 1.14.x (not tested)
+
 	private ConfigManager configManager;
 	private DragonFactory dragonFactory;
 	private EggManager eggManager;
 	
 	@Override
-	public void onEnable(){
-		this.logPrefix = "[" + this.getName() + "] ";
+	public void onEnable() {
+		String logPrefix = "[" + this.getName() + "] ";
 
 		this.dragonFactory = new DragonFactory(this);
 		
@@ -41,7 +42,7 @@ public class PetDragon extends JavaPlugin  {
  			getServer().getConsoleSender().sendMessage(ChatColor.BOLD + "" + ChatColor.RED + logPrefix + "See the header of the config.yml about fixing the problem.");
 			return;
 		}
-		getLogger().log(Level.INFO, "Configuration has been successfully loaded!");
+		getLogger().info("Configuration has been successfully loaded!");
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
 			getLogger().info("If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL"));
@@ -51,6 +52,10 @@ public class PetDragon extends JavaPlugin  {
 		eggManager = new EggManager(this);
 		DragonListener dragonListener = new DragonListener(this);
 		getServer().getPluginManager().registerEvents(dragonListener, this);
+
+		if (configManager.collectMetrics) {
+			new Metrics(this, 13486);
+		}
 		
 		if (configManager.checkUpdates) {
 			new UpdateChecker(this)
@@ -65,7 +70,7 @@ public class PetDragon extends JavaPlugin  {
 		}
 	}
 	
-	public ConfigManager getConfigManager(){
+	public ConfigManager getConfigManager() {
 		return this.configManager;
 	}
 	

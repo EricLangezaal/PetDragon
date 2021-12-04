@@ -47,7 +47,7 @@ public class BaseCommand implements CommandExecutor, TabCompleter {
         }
 
         if (subCommand.isPlayerOnly() && !(sender instanceof Player)){
-            sender.sendMessage(ChatColor.RED + plugin.logPrefix + "This command can only be used by a player!");
+            sender.sendMessage(plugin.getConfigManager().pluginPrefix + ChatColor.RED + "This command can only be used by a player!");
             return true;
         }
 

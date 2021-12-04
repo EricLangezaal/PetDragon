@@ -1,0 +1,6 @@
+target/
+dependency-reduced-pom.xml
+src/.DS_Store
+src/main/.DS_Store
+.idea/
+.DS_Store

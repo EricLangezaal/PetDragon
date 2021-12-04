@@ -24,6 +24,7 @@ public class ConfigManager {
 	private boolean isValid;
 	
 	public boolean checkUpdates = true;
+	public boolean collectMetrics = true;
 	
 	public boolean rightClickRide = true;
 	public boolean leftClickRide = true;
@@ -41,12 +42,12 @@ public class ConfigManager {
 
 	public int maxDragons = Integer.MAX_VALUE;
 	public boolean clickToRemove = false;
-	private String pluginPrefix = "";
+	public String pluginPrefix = "";
 	public String dragonEggName = "";
 	public boolean alwaysUseUpEgg = true;
 	
 	
-	public ConfigManager(PetDragon plugin){
+	public ConfigManager(PetDragon plugin) {
 		this.plugin = plugin;
 		plugin.saveDefaultConfig();
 		
@@ -56,26 +57,27 @@ public class ConfigManager {
 		
 	}
 	
-	public boolean checkConfig(){
+	public boolean checkConfig() {
 		boolean valid = this.validateSection("", "", true, true);
 		if (!valid){
 			if (handleUpdate()){
 				if (this.validateSection("", "", true, false)) {
-					Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
-		        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "Automatically updated old/invalid configuration file!");
-		        	Bukkit.getLogger().log(Level.INFO, plugin.logPrefix + "================================================================");
+					plugin.getLogger().info("================================================================");
+		        	plugin.getLogger().info("Automatically updated old/invalid configuration file!");
+		        	plugin.getLogger().info("================================================================");
 		        	return true;
 				}
 			}
-			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED +  plugin.logPrefix + "Automatic configuration update failed! See the header and the comments of the config.yml about fixing it");
+			plugin.getLogger().warning("Automatic configuration update failed! See the header and the comments of the config.yml about fixing it");
 		}
 		return valid;
 	}
 	
-	public void loadConfig(){
+	public void loadConfig() {
 		pluginPrefix = plugin.getConfig().getString("plugin-prefix");
 		
 		checkUpdates = plugin.getConfig().getBoolean("check-for-updates");
+		collectMetrics = plugin.getConfig().getBoolean("collect-bstats-metrics");
 		
 		dragonEggName = ChatColor.translateAlternateColorCodes('§', plugin.getConfig().getString("dragon-egg-name", ""));
 		alwaysUseUpEgg = plugin.getConfig().getBoolean("always-use-up-egg");
@@ -108,7 +110,7 @@ public class ConfigManager {
 	}
 	
 	
-	public String parseMessage(Message message, ImmutableMap<String, String> replacements){
+	public String parseMessage(Message message, ImmutableMap<String, String> replacements) {
 		String msg = plugin.getConfig().getString(MESSAGES_PREFIX + message.getKey());
 		if (msg == null || msg.isEmpty()) return null;
 		String colorMsg = ChatColor.translateAlternateColorCodes('§', this.pluginPrefix + msg);
@@ -120,12 +122,12 @@ public class ConfigManager {
 		return colorMsg;	
 	}
 	
-	public void sendMessage(CommandSender p, Message message,ImmutableMap<String, String> replacements){
+	public void sendMessage(CommandSender p, Message message,ImmutableMap<String, String> replacements) {
 		String msg = this.parseMessage(message, replacements);
 		if (msg != null) p.sendMessage(msg);
 	}
 	
-	private boolean validateSection(String templatePath, String realPath, boolean deep, boolean log){
+	private boolean validateSection(String templatePath, String realPath, boolean deep, boolean log) {
 		InputStream templateFile = getClass().getClassLoader().getResourceAsStream("config.yml");
         FileConfiguration templateConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(templateFile));
         
@@ -136,21 +138,21 @@ public class ConfigManager {
         
  		for(String key: templateSection.getKeys(deep)){
  			if (!realSection.getKeys(deep).contains(key) || !isSameType(templateSection.get(key), realSection.get(key))){
- 				if (log) Bukkit.getLogger().log(Level.WARNING, plugin.logPrefix + "Missing or invalid datatype key '" + key + "' and possibly others in config.yml");
+ 				if (log) plugin.getLogger().warning("Missing or invalid datatype key '" + key + "' and possibly others in config.yml");
  				return false;
  			}
  		}
  		return true;
 	}
 
-	private boolean isSameType(Object template, Object real){
+	private boolean isSameType(Object template, Object real) {
 		if (template instanceof Number && real instanceof Number){
 			return true;
 		}
 		return template.getClass() == real.getClass();
 	}
 	
-	public boolean handleUpdate(){
+	public boolean handleUpdate() {
 		File oldConfig = new File(plugin.getDataFolder(), "config.yml");
 		try {
 			ConfigUpdater.update(plugin, "config.yml", oldConfig, Collections.emptyList());
@@ -161,7 +163,7 @@ public class ConfigManager {
 		return true;
 	}
 	
-	public void reloadConfig(){
+	public void reloadConfig() {
 		plugin.reloadConfig();
 		this.isValid = this.checkConfig();
 		if (isValid) this.loadConfig();

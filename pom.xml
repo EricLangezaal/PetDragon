@@ -3,7 +3,7 @@
     <groupId>com.ericdebouwer</groupId>
     <artifactId>petdragon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.1</version>
+    <version>${revision}</version>
 
     <modules>
         <module>core</module>
@@ -15,6 +15,7 @@
         <module>v1_16_R1</module>
         <module>v1_15_R1</module>
         <module>v1_14_R1</module>
+        <module>v1_18_R1</module>
     </modules>
 
     <build>
@@ -27,6 +28,7 @@
     </build>
 
     <properties>
+        <revision>1.5.2</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>petdragon-parent</artifactId>
         <groupId>com.ericdebouwer</groupId>
-        <version>1.5.1</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -50,6 +50,11 @@
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_17_R1_2</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v1_18_R1</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
