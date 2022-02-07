@@ -291,7 +291,6 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 			} catch (IllegalArgumentException | IllegalAccessException ignore){
 			}
 		}
-
 		this.setRot(180 + rider.getYRot(), rider.getXRot());
 		this.setYHeadRot(rider.getXRot());
 		

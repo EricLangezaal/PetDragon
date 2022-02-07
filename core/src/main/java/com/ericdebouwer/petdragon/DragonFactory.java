@@ -23,7 +23,7 @@ public class DragonFactory {
 	
 	PetDragon plugin;
 	Class<?> dragonClass;
-	private boolean correctVersion;
+	private final boolean correctVersion;
 	public NamespacedKey ownerKey;
 
 	public DragonFactory(PetDragon plugin){
@@ -35,7 +35,7 @@ public class DragonFactory {
 	public boolean isCorrectVersion(){
 		return correctVersion;
 	}
-	
+
 	public boolean setUpDragonClass(){
 		String packageName = plugin.getServer().getClass().getPackage().getName();
 		String nmsVersion = packageName.substring(packageName.lastIndexOf('.') + 1);

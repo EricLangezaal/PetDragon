@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EnderDragon;
@@ -38,7 +39,7 @@ public class LocateCmd extends SubCommand {
             if (configManager.clickToRemove) {
                 TextComponent message = new TextComponent(text);
                 message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + BaseCommand.NAME + " remove " + dragon.getUniqueId()));
-                message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(configManager.parseMessage(Message.LOCATED_HOVER, null))));
+                message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(configManager.parseMessage(Message.LOCATED_HOVER, null))));
                 player.spigot().sendMessage(message);
             }else {
                 player.sendMessage(text);

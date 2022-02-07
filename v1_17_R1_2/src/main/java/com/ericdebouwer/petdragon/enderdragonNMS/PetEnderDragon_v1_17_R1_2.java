@@ -19,15 +19,14 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEnderDragon;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -343,6 +342,7 @@ public class PetEnderDragon_v1_17_R1_2 extends EnderDragon implements PetEnderDr
 
 	// called for head
 	private void hurt(List<Entity> list) {
+
 		for (Entity entity : list) {
 			if (entity instanceof LivingEntity) {
 				entity.hurt(DamageSource.mobAttack(this), plugin.getConfigManager().headDamage);

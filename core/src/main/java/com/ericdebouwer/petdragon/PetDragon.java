@@ -2,12 +2,12 @@ package com.ericdebouwer.petdragon;
 
 import com.ericdebouwer.petdragon.command.BaseCommand;
 import com.ericdebouwer.petdragon.config.ConfigManager;
+import com.ericdebouwer.petdragon.listeners.DragonListener;
+import com.ericdebouwer.petdragon.listeners.EntitiesLoadListener;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Level;
 
 
 public class PetDragon extends JavaPlugin {
@@ -50,8 +50,8 @@ public class PetDragon extends JavaPlugin {
 		new BaseCommand(this);
 
 		eggManager = new EggManager(this);
-		DragonListener dragonListener = new DragonListener(this);
-		getServer().getPluginManager().registerEvents(dragonListener, this);
+		getServer().getPluginManager().registerEvents(new DragonListener(this), this);
+		new EntitiesLoadListener(this);
 
 		if (configManager.collectMetrics) {
 			new Metrics(this, 13486);

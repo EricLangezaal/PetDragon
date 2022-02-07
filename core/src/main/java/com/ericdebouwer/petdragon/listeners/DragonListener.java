@@ -1,5 +1,6 @@
-package com.ericdebouwer.petdragon;
+package com.ericdebouwer.petdragon.listeners;
 
+import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.AreaEffectCloud;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EnderDragonChangePhaseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -45,18 +47,15 @@ public class DragonListener implements Listener {
 			plugin.getFactory().handleDragonReset(ent);
 		}
 	}
-	
-	
-	@EventHandler
-	public void onLoad(ChunkLoadEvent e){
-		Bukkit.getScheduler().runTaskLater(plugin, () -> {
-			if (!e.getChunk().isLoaded()) return;
 
-			for (Entity ent: e.getChunk().getEntities()){
-				plugin.getFactory().handleDragonReset(ent);
-			}
+	@EventHandler //should never happen, just in case
+	public void onDragonChangePhase(EnderDragonChangePhaseEvent event){
+		EnderDragon dragon = event.getEntity();
+		if (!plugin.getFactory().isPetDragon(dragon)) return;
 
-		}, 7); // WIP: see https://hub.spigotmc.org/jira/browse/SPIGOT-6547
+		plugin.getLogger().info("Found a broken dragon, fixing it now!");
+		event.setCancelled(true);
+		plugin.getFactory().handleDragonReset(dragon);
 	}
 
 
