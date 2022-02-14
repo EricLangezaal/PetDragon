@@ -18,7 +18,7 @@ public class DragonSwoopEvent extends EntityTargetLivingEntityEvent {
 
     private Vector velocity;
 
-    public DragonSwoopEvent(EnderDragon dragon, LivingEntity target, Vector velocity){
+    public DragonSwoopEvent(EnderDragon dragon, LivingEntity target, Vector velocity) {
         super(dragon, target, TargetReason.CUSTOM);
         this.velocity = velocity;
 

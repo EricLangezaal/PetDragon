@@ -74,8 +74,8 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		this.loc = loc;
 
 		this.setupDefault();
-		this.getBukkitEntity().setSilent(plugin.getConfigManager().silent);
-		this.noPhysics = plugin.getConfigManager().flyThroughBlocks;
+		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
+		this.noPhysics = plugin.getConfigManager().isFlyThroughBlocks();
 		this.setPos(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
@@ -87,7 +87,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		nbt.remove("WorldUUIDLeast");
 		nbt.remove("WorldUUIDMost");
 		nbt.remove("UUID"); // probably not required for this version
-		nbt.putBoolean("Silent", plugin.getConfigManager().silent);
+		nbt.putBoolean("Silent", plugin.getConfigManager().isSilent());
 		this.load(nbt);
 	}
 
@@ -111,14 +111,14 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	public boolean rideableUnderWater() { //ridable in water
 		return true;
 	}
-		
-	
+
+
 	@Override
 	public boolean hurt(EnderDragonPart entitycomplexpart, DamageSource damagesource, float f) {
 		if (!(damagesource.getEntity() instanceof Player)) return false;
 		HumanEntity damager = (HumanEntity) damagesource.getEntity().getBukkitEntity();
 		
-		if (plugin.getConfigManager().leftClickRide){
+		if (plugin.getConfigManager().isLeftClickRide()){
 			if (plugin.getFactory().tryRide(damager, (org.bukkit.entity.EnderDragon) this.getBukkitEntity())){
 				return false; //cancel damage
 			}
@@ -246,7 +246,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 						this.getZ() + (double)((f12 * 1.5F + f4 * f17) * f8));
 			}
 
-			if (!this.level.isClientSide && plugin.getConfigManager().doGriefing) { //more efficient grieving check
+			if (!this.level.isClientSide && plugin.getConfigManager().isDoGriefing()) { //more efficient grieving check
 				try {
 					checkWalls.invoke(this, this.head.getBoundingBox());
 					checkWalls.invoke(this, this.subEntities[1].getBoundingBox());
@@ -276,7 +276,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
 			try {
 				boolean jumped = jumpField.getBoolean(rider);
-				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+				if (jumped && plugin.getConfigManager().getShootCooldown() * 1000 <= (System.currentTimeMillis() - lastShot)){
 
 					Location loc = this.getBukkitEntity().getLocation();
 					loc.add(forwardDir.clone().multiply(10).setY(-1));
@@ -294,7 +294,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		this.setRot(180 + rider.getYRot(), rider.getXRot());
 		this.setYHeadRot(rider.getXRot());
 		
-		double speeder = plugin.getConfigManager().speedMultiplier;
+		double speeder = plugin.getConfigManager().getSpeedMultiplier();
 		double fwSpeed = rider.zza * speeder;
 		double sideSpeed = -1 * rider.xxa * speeder;
 		
@@ -321,7 +321,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 
 				DragonSwoopEvent swoopEvent = new DragonSwoopEvent(this.getEntity(), (org.bukkit.entity.LivingEntity) entity.getBukkitEntity(),
 						new Vector(disX / totalDis * 4.0D,  0.20000000298023224D, disZ / totalDis * 4.0D));
-				swoopEvent.setCancelled(!plugin.getConfigManager().interactEntities);
+				swoopEvent.setCancelled(!plugin.getConfigManager().isInteractEntities());
 				Bukkit.getPluginManager().callEvent(swoopEvent);
 
 				if (!swoopEvent.isCancelled() && swoopEvent.getTarget() != null){
@@ -330,7 +330,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 				}
 
 				if (didMove && ((LivingEntity) entity).getLastHurtByMobTimestamp() < entity.tickCount - 2) {
-					entity.hurt(DamageSource.mobAttack(this), plugin.getConfigManager().wingDamage);
+					entity.hurt(DamageSource.mobAttack(this), plugin.getConfigManager().getWingDamage());
 					this.doEnchantDamageEffects(this, entity);
 				}
 			}
@@ -342,7 +342,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	private void hurt(List<Entity> list) {
 		for (Entity entity : list) {
 			if (entity instanceof LivingEntity) {
-				entity.hurt(DamageSource.mobAttack(this), plugin.getConfigManager().headDamage);
+				entity.hurt(DamageSource.mobAttack(this), plugin.getConfigManager().getHeadDamage());
 				this.doEnchantDamageEffects(this, entity);
 			}
 		}
@@ -353,7 +353,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	public void tickDeath(){
 		++this.dragonDeathTime;
 		
-		if (!plugin.getConfigManager().deathAnimation){
+		if (!plugin.getConfigManager().isDeathAnimation()){
 			this.remove(RemovalReason.KILLED);
 			return;
 		}

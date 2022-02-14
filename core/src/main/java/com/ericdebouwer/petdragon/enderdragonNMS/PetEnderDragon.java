@@ -16,6 +16,7 @@ public interface PetEnderDragon {
 		dragon.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(MAX_HEALTH);
 		dragon.setHealth(MAX_HEALTH);
 		dragon.getScoreboardTags().add(PetEnderDragon.DRAGON_ID);
+
 	}
 	
 	void copyFrom(EnderDragon dragon);

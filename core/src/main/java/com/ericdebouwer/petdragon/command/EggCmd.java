@@ -16,7 +16,7 @@ public class EggCmd extends SubCommand {
     boolean perform(CommandSender sender, String[] args) {
         Player player = (Player) sender;
 
-        ItemStack egg = plugin.getEggManager().getEgg();
+        ItemStack egg = plugin.getCustomItems().getEgg();
         player.getInventory().addItem(egg);
         configManager.sendMessage(player, Message.EGG_RECEIVED, null);
         return true;

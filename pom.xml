@@ -8,6 +8,7 @@
     <modules>
         <module>core</module>
         <module>dist</module>
+        <module>v1_18_R1</module>
         <module>v1_17_R1_2</module>
         <module>v1_17_R1</module>
         <module>v1_16_R3</module>
@@ -15,8 +16,16 @@
         <module>v1_16_R1</module>
         <module>v1_15_R1</module>
         <module>v1_14_R1</module>
-        <module>v1_18_R1</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>

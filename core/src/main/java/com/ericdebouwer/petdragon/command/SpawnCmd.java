@@ -19,7 +19,7 @@ public class SpawnCmd extends SubCommand {
 
         if (!player.hasPermission("petdragon.bypass.dragonlimit")) {
             int dragonCount = plugin.getFactory().getDragons(player).size();
-            if (dragonCount >= plugin.getConfigManager().maxDragons){
+            if (dragonCount >= plugin.getConfigManager().getMaxDragons()){
                 configManager.sendMessage(player, Message.DRAGON_LIMIT, ImmutableMap.of("amount", "" + dragonCount));
                 return true;
             }

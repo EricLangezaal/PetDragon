@@ -36,7 +36,7 @@ public class LocateCmd extends SubCommand {
             String text = configManager.parseMessage(Message.LOCATE_ONE, ImmutableMap.of("x", "" +loc.getBlockX(),
                     "y", "" + loc.getBlockY(), "z", "" + loc.getBlockZ(), "world", loc.getWorld().getName()));
 
-            if (configManager.clickToRemove) {
+            if (configManager.isClickToRemove()) {
                 TextComponent message = new TextComponent(text);
                 message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + BaseCommand.NAME + " remove " + dragon.getUniqueId()));
                 message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(configManager.parseMessage(Message.LOCATED_HOVER, null))));

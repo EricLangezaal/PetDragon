@@ -9,8 +9,6 @@
 # as seen on: https://www.digminecraft.com/lists/color_list_pc.php
 ###################################################################
 
-plugin-prefix: "§r[§5§lPetDragon§r] "
-
 # whether the plugin will check for updates on start-up
 check-for-updates: true
 
@@ -55,14 +53,16 @@ speed-multiplier: 1.0
 dragon-head-damage: 10.0
 dragon-wing-damage: 5.0
 
-# Maximum amount of dragons a player can spawn, all worlds combined
-# Spawn eggs ignore this setting, so that is another way to control PetDragon amount (e.g. by giving 1 egg per player)
-# Players with permission 'petdragon.bypass.dragonlimit' will ignore this too
-max-dragons-per-player: 3
-
 # Whether or not clicking on the located-a-dragon message will remove that dragon
 # ONLY enable if server uses Spigot or Paper (or any of their forks)!
 click-to-remove: false
+
+# Maximum amount of dragons a player can spawn, all worlds combined
+# This will only count dragons in loaded chunks. To fix this upgrade to premium: https://www.spigotmc.org/resources/99995/
+# Players with permission 'petdragon.bypass.dragonlimit' will ignore this
+max-dragons-per-player: 3
+# Should dragon spawn eggs abide by the max dragons per player setting above
+eggs-count-towards-max: true
 
 # This name will be given to the PetDragon spawn egg (obtainable via /dragon egg)
 dragon-egg-name: "§5§lPetDragon spawn egg"
@@ -101,7 +101,7 @@ messages:
    
    locate-no-dragons: "§7You don't seem to have any dragons yet, spawn them using §5/dragon spawn"
    # {amount} will be replaced with the amount of dragons a player has
-   located-dragons-header: "§aYou currently have {amount} registered dragon(s)! These are loaded:"
+   located-dragons-header: "§aYou currently have {amount} dragon(s):"
    # {x} {y} and {z} will be replaced with coordinates. {world} with world-name
    located-a-dragon: "§7--> {x}, {y}, {z} in world '{world}'" 
    # only applies when click-to-remove flag above is set to 'true'

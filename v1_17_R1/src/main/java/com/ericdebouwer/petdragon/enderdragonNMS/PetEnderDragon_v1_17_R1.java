@@ -19,12 +19,14 @@ import net.minecraft.world.entity.boss.EntityComplexPart;
 import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEnderDragon;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
@@ -75,8 +77,8 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		this.loc = loc;
 
 		this.setupDefault();
-		this.getBukkitEntity().setSilent(plugin.getConfigManager().silent);
-		this.P = plugin.getConfigManager().flyThroughBlocks;
+		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
+		this.P = plugin.getConfigManager().isFlyThroughBlocks();
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
@@ -88,7 +90,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		nbt.remove("WorldUUIDLeast");
 		nbt.remove("WorldUUIDMost");
 		nbt.remove("UUID"); // probably not required for this version
-		nbt.setBoolean("Silent", plugin.getConfigManager().silent);
+		nbt.setBoolean("Silent", plugin.getConfigManager().isSilent());
 		this.load(nbt);
 	}
 
@@ -119,13 +121,13 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		if (!(damagesource.getEntity() instanceof EntityHuman)) return false;
 		HumanEntity damager = (HumanEntity) damagesource.getEntity().getBukkitEntity();
 		
-		if (plugin.getConfigManager().leftClickRide){
+		if (plugin.getConfigManager().isLeftClickRide()){
 			if (plugin.getFactory().tryRide(damager, (EnderDragon) this.getBukkitEntity())){
 				return false; //cancel damage
 			}
 			
 		}
-		
+
 		if (!plugin.getFactory().canDamage(damager, this)) return false;
 		
 		f = getDragonControllerManager().a().a(damagesource, f);
@@ -247,7 +249,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 						this.locZ() + (double)((f12 * 1.5F + f4 * f17) * f8));
 			}
 
-			if (!this.t.y && plugin.getConfigManager().doGriefing) { //more efficient grieving check
+			if (!this.t.y && plugin.getConfigManager().isDoGriefing()) { //more efficient grieving check
 				try {
 					checkWalls.invoke(this, this.e.getBoundingBox());
 					checkWalls.invoke(this, this.cf[1].getBoundingBox());
@@ -277,7 +279,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
 			try {
 				boolean jumped = jumpField.getBoolean(rider);
-				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+				if (jumped && plugin.getConfigManager().getShootCooldown() * 1000 <= (System.currentTimeMillis() - lastShot)){
 
 					Location loc = this.getBukkitEntity().getLocation();
 					loc.add(forwardDir.clone().multiply(10).setY(-1));
@@ -296,7 +298,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		this.setYawPitch(180 + rider.getYRot(), rider.getXRot());
 		this.setHeadRotation(rider.getXRot());
 		
-		double speeder = plugin.getConfigManager().speedMultiplier;
+		double speeder = plugin.getConfigManager().getSpeedMultiplier();
 		double fwSpeed = rider.bq * speeder;
 		double sideSpeed = -1 * rider.bo * speeder;
 		
@@ -323,7 +325,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 
 				DragonSwoopEvent swoopEvent = new DragonSwoopEvent(this.getEntity(), (LivingEntity) entity.getBukkitEntity(),
 						new Vector(disX / totalDis * 4.0D,  0.20000000298023224D, disZ / totalDis * 4.0D));
-				swoopEvent.setCancelled(!plugin.getConfigManager().interactEntities);
+				swoopEvent.setCancelled(!plugin.getConfigManager().isInteractEntities());
 				Bukkit.getPluginManager().callEvent(swoopEvent);
 
 				if (!swoopEvent.isCancelled() && swoopEvent.getTarget() != null){
@@ -332,7 +334,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 				}
 
 				if (didMove && ((EntityLiving) entity).dH() < entity.R - 2) {
-					entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().wingDamage);
+					entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().getWingDamage());
 					this.a(this, entity);
 				}
 			}
@@ -344,7 +346,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 	private void hurt(List<Entity> list) {
 		for (Entity entity : list) {
 			if (entity instanceof EntityLiving) {
-				entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().headDamage);
+				entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().getHeadDamage());
 				this.a(this, entity);
 			}
 		}
@@ -355,7 +357,7 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 	public void dB(){
 		++this.bV;
 		
-		if (!plugin.getConfigManager().deathAnimation){
+		if (!plugin.getConfigManager().isDeathAnimation()){
 			this.a(RemovalReason.a);
 			return;
 		}

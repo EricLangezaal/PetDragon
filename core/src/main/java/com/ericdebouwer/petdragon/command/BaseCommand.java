@@ -19,10 +19,10 @@ public class BaseCommand implements CommandExecutor, TabCompleter {
 
     public final static String NAME = "dragon";
 
-    private List<SubCommand> subCommands = new ArrayList<>();
-    private PetDragon plugin;
+    private final List<SubCommand> subCommands = new ArrayList<>();
+    private final PetDragon plugin;
 
-    public BaseCommand(PetDragon plugin){
+    public BaseCommand(PetDragon plugin) {
         this.plugin = plugin;
         plugin.getCommand(NAME).setExecutor(this);
         plugin.getCommand(NAME).setTabCompleter(this);
@@ -47,7 +47,7 @@ public class BaseCommand implements CommandExecutor, TabCompleter {
         }
 
         if (subCommand.isPlayerOnly() && !(sender instanceof Player)){
-            sender.sendMessage(plugin.getConfigManager().pluginPrefix + ChatColor.RED + "This command can only be used by a player!");
+            sender.sendMessage(plugin.getConfigManager().getPluginPrefix() + ChatColor.RED + "This command can only be used by a player!");
             return true;
         }
 
@@ -61,7 +61,7 @@ public class BaseCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete( CommandSender sender, Command command,  String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command,  String alias, String[] args) {
         if (args.length == 0) return Collections.emptyList();
 
         if (args.length == 1){

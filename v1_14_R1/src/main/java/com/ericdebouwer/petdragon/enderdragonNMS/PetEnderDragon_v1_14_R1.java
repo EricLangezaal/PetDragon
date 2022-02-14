@@ -77,8 +77,8 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		this.loc = loc;
 		
 		this.setupDefault();
-		this.getBukkitEntity().setSilent(plugin.getConfigManager().silent);
-		this.noclip = plugin.getConfigManager().flyThroughBlocks;
+		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
+		this.noclip = plugin.getConfigManager().isFlyThroughBlocks();
 		
 		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 		
@@ -92,7 +92,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		nbt.remove("WorldUUIDLeast");
 		nbt.remove("WorldUUIDMost");
 		nbt.remove("UUID");
-		nbt.setBoolean("Silent", plugin.getConfigManager().silent);
+		nbt.setBoolean("Silent", plugin.getConfigManager().isSilent());
 		this.f(nbt);
 	}
 	
@@ -122,7 +122,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		if (!(damagesource.getEntity() instanceof EntityHuman)) return false;
 		HumanEntity damager = (HumanEntity) damagesource.getEntity().getBukkitEntity();
 		
-		if (plugin.getConfigManager().leftClickRide){
+		if (plugin.getConfigManager().isLeftClickRide()){
 			if (plugin.getFactory().tryRide(damager, (EnderDragon) this.getBukkitEntity())){
 				return false; //cancel damage
 			}
@@ -260,7 +260,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 				entitycomplexpart.setPositionRotation(this.locX - (double)((f11 * 1.5F + f16 * f19) * f8), this.locY + (adouble1[1] - adouble[1]) - (double)((f19 + 1.5F) * f9) + 1.5D, this.locZ + (double)((f12 * 1.5F + f17 * f19) * f8), 0.0F, 0.0F);
 			}
 
-			if (!this.world.isClientSide && plugin.getConfigManager().doGriefing) { //more efficient grieving check
+			if (!this.world.isClientSide && plugin.getConfigManager().isDoGriefing()) { //more efficient grieving check
 				try {
 					checkWalls.invoke(this, this.bA.getBoundingBox());
 					checkWalls.invoke(this, this.children[1].getBoundingBox());
@@ -286,7 +286,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		if (rider.getBukkitEntity().hasPermission("petdragon.shoot") && jumpField != null){
 			try {
 				boolean jumped = jumpField.getBoolean(rider);
-				if (jumped && plugin.getConfigManager().shootCooldown * 1000 <= (System.currentTimeMillis() - lastShot)){
+				if (jumped && plugin.getConfigManager().getShootCooldown() * 1000 <= (System.currentTimeMillis() - lastShot)){
 
 					Location loc = this.getBukkitEntity().getLocation();
 					loc.add(forwardDir.clone().multiply(10).setY(-1));
@@ -304,7 +304,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		this.setYawPitch(180 + rider.yaw, rider.pitch);
 		this.setHeadRotation(rider.pitch);
 		
-		double speeder = plugin.getConfigManager().speedMultiplier;
+		double speeder = plugin.getConfigManager().getSpeedMultiplier();
 		double fwSpeed = rider.bd * speeder;
 		double sideSpeed = -1 * rider.bb * speeder;
 		
@@ -330,7 +330,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 
 				DragonSwoopEvent swoopEvent = new DragonSwoopEvent(this.getEntity(), (LivingEntity) entity.getBukkitEntity(),
 						new Vector(disX / totalDis * 4.0D,  0.20000000298023224D, disZ / totalDis * 4.0D));
-				swoopEvent.setCancelled(!plugin.getConfigManager().interactEntities);
+				swoopEvent.setCancelled(!plugin.getConfigManager().isInteractEntities());
 				Bukkit.getPluginManager().callEvent(swoopEvent);
 
 				if (!swoopEvent.isCancelled() && swoopEvent.getTarget() != null){
@@ -339,7 +339,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 				}
 
 				if (didMove && ((EntityLiving) entity).ct() < entity.ticksLived - 2) {
-					entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().wingDamage);
+					entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().getWingDamage());
 					this.a(this, entity);
 				}
 			}
@@ -351,7 +351,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 	private void hurt(List<Entity> list) {
 		for (Entity entity : list) {
 			if (entity instanceof EntityLiving) {
-				entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().headDamage);
+				entity.damageEntity(DamageSource.mobAttack(this), plugin.getConfigManager().getHeadDamage());
 				this.a(this, entity);
 			}
 		}
@@ -363,7 +363,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 	public void co(){
 		++this.bL;
 		
-		if (!plugin.getConfigManager().deathAnimation){
+		if (!plugin.getConfigManager().isDeathAnimation()){
 			this.die();
 			return;
 		}

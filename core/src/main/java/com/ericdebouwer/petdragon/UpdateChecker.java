@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class UpdateChecker {
 	
-	private PetDragon plugin;
+	private final PetDragon plugin;
 	public static final int RESOURCE_ID = 82744;
 	private Runnable onStart;
 	private Runnable onError;

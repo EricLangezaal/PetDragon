@@ -27,14 +27,13 @@ public class RemoveCmd extends SubCommand {
         int range = 3;
         boolean found = false;
 
-        if (args.length >= 2){
+        if (args.length >= 1){
             try {
-                Entity potentialDragon = Bukkit.getEntity(UUID.fromString(args[1]));
+                Entity potentialDragon = Bukkit.getEntity(UUID.fromString(args[0]));
                 if (plugin.getFactory().isPetDragon(potentialDragon)){
                     potentialDragon.remove();
                     found = true;
                 }
-
             } catch(IllegalArgumentException ila){
                 try {
                     int argRange = Integer.parseInt(args[0]);
@@ -74,7 +73,7 @@ public class RemoveCmd extends SubCommand {
     }
 
     @Override
-    public List<String> tabComplete(String[] args){
+    public List<String> tabComplete(String[] args) {
         if (args.length == 1)
             return this.filter(Arrays.asList("3", "5", "10"), args[0].toLowerCase());
 

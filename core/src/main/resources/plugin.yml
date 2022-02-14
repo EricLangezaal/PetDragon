@@ -2,7 +2,6 @@ main: com.ericdebouwer.petdragon.PetDragon
 version: ${project.version}
 load: STARTUP
 api-version: 1.14
-website: "https://www.spigotmc.org/resources/82744"
 description: Fly custom fully controllable EnderDragons and destroy your foes!
 name: PetDragon
 author: ericdebouwer (3ricL)

@@ -1,6 +1,5 @@
 package com.ericdebouwer.petdragon.api;
 
-import com.ericdebouwer.petdragon.DragonFactory;
 import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon;
 import org.apache.commons.lang.Validate;
@@ -21,24 +20,42 @@ import java.util.function.Consumer;
  * Small API to properly interact with the PetDragon plugin. <br>
  * <b>Author</b> - 3ricL (Ericdebouwer).
  */
+
 public class PetDragonAPI {
 
     private static final PetDragonAPI instance = new PetDragonAPI();
-
-    private final DragonFactory factory;
+    private final PetDragon plugin;
 
     /**
      * Get an instance of this API. Make sure your plugin is a dependency of <b>PetDragon</b>,
      * so it will load after PetDragon has initialised.
      * @return an instance of this API.
      */
-    public static  PetDragonAPI getInstance(){
+    public static PetDragonAPI getInstance(){
         return instance;
     }
 
     private PetDragonAPI(){
-        PetDragon plugin = JavaPlugin.getPlugin(PetDragon.class);
-        factory = plugin.getFactory();
+        plugin = JavaPlugin.getPlugin(PetDragon.class);
+    }
+
+    /**
+     * Gets the UUID of the player who owns this PetDragon. Can be null for dragons spawned in older versions of this plugin
+     * @param dragon the EnderDragon to check, doesn't have to be a PetDragon.
+     * @return the UUID of the player who owns this PetDragon if applicable.
+     */
+    public @Nullable UUID getOwningPlayer(@Nonnull EnderDragon dragon) {
+        return plugin.getFactory().getOwner(Objects.requireNonNull(dragon));
+    }
+
+    /**
+     *
+     * Get all dragons that are currently <b>loaded</b> and owned by a specific player.
+     * @param player the player to check for
+     * @return a set of EnderDragons corresponding to all <b>loaded</b> PetDragons for this player.
+     */
+    public @Nonnull Set<EnderDragon> getDragons(@Nonnull OfflinePlayer player) {
+        return plugin.getFactory().getDragons(Objects.requireNonNull(player));
     }
 
     /**
@@ -47,7 +64,7 @@ public class PetDragonAPI {
      * @param entity the entity to check.
      */
     public boolean isPetDragon(@Nonnull Entity entity){
-        return factory.isPetDragon(entity);
+        return plugin.getFactory().isPetDragon(entity);
     }
 
     /**
@@ -56,7 +73,7 @@ public class PetDragonAPI {
      * @param owningPlayer the UUID of the player who will own this dragon.
      * @return an EnderDragon which corresponds to the PetDragon that just spawned.
      */
-    public @Nonnull EnderDragon spawnDragon(@Nonnull Location location, @Nonnull UUID owningPlayer){
+    public @Nonnull EnderDragon spawnDragon(@Nonnull Location location, @Nonnull UUID owningPlayer) {
         return this.spawnDragon(location, owningPlayer, null);
     }
 
@@ -67,32 +84,12 @@ public class PetDragonAPI {
      * @param function the function to be run before the entity is spawned.
      * @return an EnderDragon which corresponds to the PetDragon that just spawned.
      */
-    public @Nonnull EnderDragon spawnDragon(@Nonnull Location location, @Nonnull UUID owningPlayer, @Nullable Consumer<EnderDragon> function){
+    public @Nonnull EnderDragon spawnDragon(@Nonnull Location location, @Nonnull UUID owningPlayer, @Nullable Consumer<EnderDragon> function) {
         Validate.notNull(owningPlayer, "Spawning PetDragons without an owner is no longer supported!");
-        PetEnderDragon dragon = this.factory.create(location, owningPlayer);
+        PetEnderDragon dragon = plugin.getFactory().create(Objects.requireNonNull(location), owningPlayer);
         if (function != null) function.accept(dragon.getEntity());
         dragon.spawn();
         return dragon.getEntity();
     }
-
-    /**
-     * Gets the UUID of the player who owns this PetDragon. Can be null for dragons spawned in older versions of this plugin
-     * @param dragon the EnderDragon to check, doesn't have to be a PetDragon.
-     * @return the UUID of the player who owns this PetDragon if applicable.
-     */
-    public @Nullable UUID getOwningPlayer(@Nonnull EnderDragon dragon){
-        return this.factory.getOwner(Objects.requireNonNull(dragon));
-    }
-
-    /**
-     *
-     * Get all dragons that are currently <b>loaded</b> and owned by a specific player.
-     * @param player the player to check for
-     * @return a set of EnderDragons corresponding to all <b>loaded</b> PetDragons for this player.
-     */
-    public @Nonnull Set<EnderDragon> getDragons(@Nonnull OfflinePlayer player){
-        return this.factory.getDragons(Objects.requireNonNull(player));
-    }
-
 
 }

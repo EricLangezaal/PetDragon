@@ -2,6 +2,7 @@ package com.ericdebouwer.petdragon.listeners;
 
 import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EnderDragon;
@@ -15,6 +16,7 @@ import org.bukkit.event.entity.EnderDragonChangePhaseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -25,14 +27,11 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 public class DragonListener implements Listener {
 	
-	PetDragon plugin;
-	
-	public DragonListener(PetDragon plugin){
-		this.plugin = plugin;
-	}
-	
+	private final PetDragon plugin;
+
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e){
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -58,7 +57,6 @@ public class DragonListener implements Listener {
 		plugin.getFactory().handleDragonReset(dragon);
 	}
 
-
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onSwoop(DragonSwoopEvent event){
 		if (!(event.getTarget() instanceof Player)) return;
@@ -78,7 +76,7 @@ public class DragonListener implements Listener {
 		}
 
 		if (!plugin.getFactory().isPetDragon(damager)) return;
-		if (!plugin.getConfigManager().damageEntities) e.setCancelled(true);
+		if (!plugin.getConfigManager().isDamageEntities()) e.setCancelled(true);
 		if (!(e.getEntity() instanceof Player)) return;
 		
 		Player player = (Player) e.getEntity();
@@ -119,7 +117,7 @@ public class DragonListener implements Listener {
 	public void interact(PlayerInteractEntityEvent e){
 		if (e.getHand() != EquipmentSlot.HAND) return; //prevent double firing
 		
-		if (!plugin.getConfigManager().rightClickRide) return;
+		if (!plugin.getConfigManager().isRightClickRide()) return;
 		if (!(e.getRightClicked() instanceof EnderDragonPart)) return;
 		
 		EnderDragonPart part = (EnderDragonPart) e.getRightClicked();

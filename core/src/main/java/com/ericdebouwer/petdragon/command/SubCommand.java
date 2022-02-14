@@ -14,7 +14,7 @@ public abstract class SubCommand {
     ConfigManager configManager;
     String name;
 
-    public SubCommand(PetDragon plugin, String name){
+    public SubCommand(PetDragon plugin, String name) {
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
         this.name = name;
@@ -30,11 +30,11 @@ public abstract class SubCommand {
         return Collections.emptyList();
     }
 
-    public boolean hasPermission(CommandSender sender){
+    public boolean hasPermission(CommandSender sender) {
         return sender.hasPermission("petdragon.command." + this.name);
     }
 
-    public List<String> filter(List<String> original, String query){
+    public List<String> filter(List<String> original, String query) {
         return original.stream().filter(s -> s.startsWith(query)).collect(Collectors.toList());
     }
 

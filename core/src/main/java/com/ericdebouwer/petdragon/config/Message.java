@@ -1,5 +1,7 @@
 package com.ericdebouwer.petdragon.config;
 
+import lombok.Getter;
+
 public enum Message {
 	NO_PERMISSION_COMMAND("no-command-permission"),
 	NO_RIDE_PERMISSION ("no-ride-permission"),
@@ -20,10 +22,10 @@ public enum Message {
 	LOCATE_ONE("located-a-dragon"),
 	LOCATED_HOVER ("located-hover-text"),
 	COMMAND_USAGE("command-usage");
-	
+
+	@Getter
 	String key;
 	Message(String key){
 		this.key = key;
 	}
-	public String getKey(){ return this.key;}
 }
