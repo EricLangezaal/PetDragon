@@ -62,7 +62,7 @@
 
     <build>
         <directory>../target</directory>
-        <finalName>PetDragonPro-${project.version}</finalName>
+        <finalName>PetDragon-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

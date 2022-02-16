@@ -2,14 +2,12 @@ package com.ericdebouwer.petdragon.config;
 
 import com.ericdebouwer.petdragon.PetDragon;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +51,7 @@ public class ConfigManager {
 	private final String pluginPrefix = "§r[§5§lPetDragon§r] ";
 	private String dragonEggName;
 	private boolean alwaysUseUpEgg;
-	private boolean countEggsInMaxDragons;
+	private boolean eggAbidesDragonMax;
 	
 	public ConfigManager(PetDragon plugin) {
 		this.plugin = plugin;
@@ -112,7 +110,7 @@ public class ConfigManager {
 		wingDamage = (float) plugin.getConfig().getDouble("dragon-wing-damage", 5);
 
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player", Integer.MAX_VALUE);
-		countEggsInMaxDragons = plugin.getConfig().getBoolean("eggs-count-towards-max");
+		eggAbidesDragonMax = plugin.getConfig().getBoolean("eggs-count-towards-max");
 
 		clickToRemove = plugin.getConfig().getBoolean("click-to-remove");
 	}

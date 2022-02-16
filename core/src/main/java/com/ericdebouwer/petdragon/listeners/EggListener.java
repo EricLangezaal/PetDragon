@@ -27,10 +27,11 @@ public class EggListener implements Listener {
             return;
         }
 
-        if (plugin.getConfigManager().isCountEggsInMaxDragons() && !e.getPlayer().hasPermission("petdragon.bypass.dragonlimit")) {
+        if (plugin.getConfigManager().isEggAbidesDragonMax() && !e.getPlayer().hasPermission("petdragon.bypass.dragonlimit")) {
             int dragonCount = plugin.getFactory().getDragons(e.getPlayer()).size();
             if (dragonCount >= plugin.getConfigManager().getMaxDragons()){
                 plugin.getConfigManager().sendMessage(e.getPlayer(), Message.DRAGON_LIMIT, ImmutableMap.of("amount", "" + dragonCount));
+                e.setCancelled(true);
                 return;
             }
         }
