@@ -110,7 +110,7 @@ public class ConfigManager {
 		wingDamage = (float) plugin.getConfig().getDouble("dragon-wing-damage", 5);
 
 		maxDragons = plugin.getConfig().getInt("max-dragons-per-player", Integer.MAX_VALUE);
-		eggAbidesDragonMax = plugin.getConfig().getBoolean("eggs-count-towards-max");
+		eggAbidesDragonMax = plugin.getConfig().getBoolean("eggs-abide-by-max-dragons");
 
 		clickToRemove = plugin.getConfig().getBoolean("click-to-remove");
 	}

@@ -62,7 +62,7 @@ click-to-remove: false
 # Players with permission 'petdragon.bypass.dragonlimit' will ignore this
 max-dragons-per-player: 3
 # Should dragon spawn eggs abide by the max dragons per player setting above
-eggs-count-towards-max: true
+eggs-abide-by-max-dragons: true
 
 # This name will be given to the PetDragon spawn egg (obtainable via /dragon egg)
 dragon-egg-name: "§5§lPetDragon spawn egg"
