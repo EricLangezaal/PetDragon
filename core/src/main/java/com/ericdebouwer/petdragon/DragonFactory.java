@@ -115,13 +115,18 @@ public class DragonFactory {
 	 * Manually reset dragons spawned before 1.6 since their entity type is still wrong
 	 * @param ent the dragon to check
 	 */
-	public void handleOldDragon(Entity ent){
+	public void handleOldDragon(Entity ent) {
 		if (!isPetDragon(ent)) return;
 		EnderDragon dragon = (EnderDragon) ent;
 		try {
 			if (dragon.getClass().getDeclaredMethod("getHandle").invoke(dragon) instanceof PetEnderDragon) return;
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore) {
 		}
+		resetDragon(dragon);
+	}
+
+	public void resetDragon(EnderDragon dragon) {
+		if (!isPetDragon(dragon)) return;
 
 		List<Entity> passengers = dragon.getPassengers();
 		dragon.remove();
@@ -133,7 +138,7 @@ public class DragonFactory {
 		passengers.forEach(p -> petDragon.getEntity().addPassenger(p));
 	}
 
-	public Set<EnderDragon> getDragons(OfflinePlayer player){
+	public Set<EnderDragon> getDragons(OfflinePlayer player) {
 		Set<EnderDragon> result = new HashSet<>();
 		for (World world: Bukkit.getWorlds()){
 			for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
