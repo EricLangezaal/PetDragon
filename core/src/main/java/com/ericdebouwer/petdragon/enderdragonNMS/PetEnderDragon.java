@@ -2,8 +2,11 @@ package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.util.Vector;
 
 public interface PetEnderDragon {
+
+	String ENTITY_ID = "pet_dragon";
 	
 	String DRAGON_ID = "CustomPetDragon";
 	
@@ -21,7 +24,7 @@ public interface PetEnderDragon {
 	
 	void copyFrom(EnderDragon dragon);
 	
-	void spawn();
+	void spawn(Vector location);
 
 	EnderDragon getEntity();
 	

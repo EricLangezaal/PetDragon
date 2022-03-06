@@ -2,17 +2,26 @@ package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
+import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.types.Type;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.IRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.Particles;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.game.PacketPlayOutWorldEvent;
+import net.minecraft.resources.MinecraftKey;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.datafix.DataConverterRegistry;
+import net.minecraft.util.datafix.fixes.DataConverterTypes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EnumCreatureType;
 import net.minecraft.world.entity.EnumMoveType;
 import net.minecraft.world.entity.IEntitySelector;
 import net.minecraft.world.entity.boss.EntityComplexPart;
@@ -32,7 +41,9 @@ import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
@@ -40,19 +51,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnderDragon {
-
-	private PetDragon plugin;
-
-	Location loc;
 
 	static Field jumpField;
 	static Method checkWalls;
 	static Method checkCrystals;
 	static {
+		MinecraftKey mcKey = new MinecraftKey(PetEnderDragon.ENTITY_ID);
 		try {
+			if (!IRegistry.Y.getOptional(mcKey).isPresent()) {
+				@SuppressWarnings("unchecked")
+				Map<String, Type<?>> types = (Map<String, Type<?>>) DataConverterRegistry.a().getSchema(
+						DataFixUtils.makeKey(SharedConstants.getGameVersion().getWorldVersion()))
+						.findChoiceType(DataConverterTypes.q).types();
+				types.put(mcKey.toString(), types.get(IRegistry.Y.getKey(EntityTypes.v).toString()));
+				IRegistry.a(IRegistry.Y, PetEnderDragon.ENTITY_ID,
+						EntityTypes.Builder.a(PetEnderDragon_v1_17_R1::new, EnumCreatureType.a).a().a(PetEnderDragon.ENTITY_ID));
+			}
+
 			jumpField = EntityLiving.class.getDeclaredField("bn");
 			jumpField.setAccessible(true);
 			checkWalls = EntityEnderDragon.class.getDeclaredMethod("b", AxisAlignedBB.class);
@@ -63,23 +82,21 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 		}
 	}
 
+	private final PetDragon plugin;
 	private long lastShot;
 	private boolean didMove;
 	int growlTicks = 100;
 
 	public PetEnderDragon_v1_17_R1(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
-		super(EntityTypes.v, world);
+		this(world.getWorld());
 	}
 
-	public PetEnderDragon_v1_17_R1(Location loc, PetDragon plugin){
-		super(null, ((CraftWorld)loc.getWorld()).getHandle());
-		this.plugin = plugin;
-		this.loc = loc;
-
+	public PetEnderDragon_v1_17_R1(org.bukkit.World world) {
+		super(EntityTypes.v, ((CraftWorld)world).getHandle());
+		this.plugin = JavaPlugin.getPlugin(PetDragon.class);
 		this.setupDefault();
 		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
 		this.P = plugin.getConfigManager().isFlyThroughBlocks();
-		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
 	@Override
@@ -95,8 +112,9 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 	}
 
 	@Override
-	public void spawn() {
-		((CraftWorld)loc.getWorld()).getHandle().addEntity(this, SpawnReason.CUSTOM);
+	public void spawn(Vector location) {
+		this.setPosition(location.getX(), location.getY(), location.getZ());
+		this.t.addEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
 	}
 	
 	@Override
@@ -113,6 +131,14 @@ public class PetEnderDragon_v1_17_R1 extends EntityEnderDragon implements PetEnd
 	@Override
 	public boolean bC() { //ridable in water
 		return true;
+	}
+
+
+	@Override
+	public boolean e(NBTTagCompound nbttagcompound) {
+		boolean result = super.e(nbttagcompound);
+		nbttagcompound.setString("id", PetEnderDragon.ENTITY_ID);
+		return result;
 	}
 		
 	

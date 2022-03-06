@@ -8,14 +8,15 @@
     <modules>
         <module>core</module>
         <module>dist</module>
-        <module>v1_18_R1</module>
-        <module>v1_17_R1_2</module>
-        <module>v1_17_R1</module>
-        <module>v1_16_R3</module>
-        <module>v1_16_R2</module>
-        <module>v1_16_R1</module>
-        <module>v1_15_R1</module>
         <module>v1_14_R1</module>
+        <module>v1_15_R1</module>
+        <module>v1_16_R1</module>
+        <module>v1_16_R2</module>
+        <module>v1_16_R3</module>
+        <module>v1_17_R1</module>
+        <module>v1_17_R1_2</module>
+        <module>v1_18_R1</module>
+        <module>v1_18_R2</module>
     </modules>
 
     <dependencies>
@@ -37,7 +38,7 @@
     </build>
 
     <properties>
-        <revision>1.5.3</revision>
+        <revision>1.6</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

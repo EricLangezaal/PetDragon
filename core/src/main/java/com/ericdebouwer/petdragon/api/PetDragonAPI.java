@@ -86,9 +86,9 @@ public class PetDragonAPI {
      */
     public @Nonnull EnderDragon spawnDragon(@Nonnull Location location, @Nonnull UUID owningPlayer, @Nullable Consumer<EnderDragon> function) {
         Validate.notNull(owningPlayer, "Spawning PetDragons without an owner is no longer supported!");
-        PetEnderDragon dragon = plugin.getFactory().create(Objects.requireNonNull(location), owningPlayer);
+        PetEnderDragon dragon = plugin.getFactory().create(Objects.requireNonNull(location.getWorld()), owningPlayer);
         if (function != null) function.accept(dragon.getEntity());
-        dragon.spawn();
+        dragon.spawn(location.toVector());
         return dragon.getEntity();
     }
 

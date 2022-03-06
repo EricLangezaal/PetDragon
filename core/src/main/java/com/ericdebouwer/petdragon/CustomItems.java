@@ -16,6 +16,7 @@ public class CustomItems {
 		egg = new ItemStack(Material.DRAGON_EGG);
 		ItemMeta meta = egg.getItemMeta();
 		meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "egg"), PersistentDataType.SHORT, (short) 1);
+		// only deprecated on Paper, no Spigot alternative
 		meta.setDisplayName(plugin.getConfigManager().getDragonEggName());
 		egg.setItemMeta(meta);
 

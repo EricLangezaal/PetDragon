@@ -44,8 +44,8 @@ public class EggListener implements Listener {
             else e.getPlayer().getInventory().setItem(e.getHand(), null);
         }
 
-        PetEnderDragon dragon = plugin.getFactory().create(e.getBlock().getLocation().add(0, 3, 0), e.getPlayer().getUniqueId());
-        dragon.spawn();
+        PetEnderDragon dragon = plugin.getFactory().create(e.getPlayer().getWorld(), e.getPlayer().getUniqueId());
+        dragon.spawn(e.getBlock().getLocation().add(0, 3, 0).toVector());
 
         plugin.getConfigManager().sendMessage(e.getPlayer(), Message.EGG_HATCHED, null);
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> e.getBlock().setType(Material.AIR));

@@ -25,8 +25,8 @@ public class SpawnCmd extends SubCommand {
             }
         }
 
-        PetEnderDragon dragon = plugin.getFactory().create(player.getLocation().add(0, 2, 0), player.getUniqueId());
-        dragon.spawn();
+        PetEnderDragon dragon = plugin.getFactory().create(player.getWorld(), player.getUniqueId());
+        dragon.spawn(player.getLocation().add(0, 2, 0).toVector());
         configManager.sendMessage(player, Message.DRAGON_SPAWNED, null);
 
         return true;

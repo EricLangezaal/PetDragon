@@ -2,9 +2,13 @@ package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
+import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.types.Type;
 import net.minecraft.server.v1_15_R1.AxisAlignedBB;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.DamageSource;
+import net.minecraft.server.v1_15_R1.DataConverterRegistry;
+import net.minecraft.server.v1_15_R1.DataConverterTypes;
 import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityComplexPart;
 import net.minecraft.server.v1_15_R1.EntityEnderDragon;
@@ -12,14 +16,18 @@ import net.minecraft.server.v1_15_R1.EntityHuman;
 import net.minecraft.server.v1_15_R1.EntityLiving;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EntityTypes;
+import net.minecraft.server.v1_15_R1.EnumCreatureType;
 import net.minecraft.server.v1_15_R1.EnumMoveType;
 import net.minecraft.server.v1_15_R1.FluidType;
 import net.minecraft.server.v1_15_R1.IEntitySelector;
+import net.minecraft.server.v1_15_R1.IRegistry;
 import net.minecraft.server.v1_15_R1.MathHelper;
+import net.minecraft.server.v1_15_R1.MinecraftKey;
 import net.minecraft.server.v1_15_R1.MinecraftServer;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutWorldEvent;
 import net.minecraft.server.v1_15_R1.Particles;
+import net.minecraft.server.v1_15_R1.SharedConstants;
 import net.minecraft.server.v1_15_R1.SoundEffects;
 import net.minecraft.server.v1_15_R1.Tag;
 import net.minecraft.server.v1_15_R1.Vec3D;
@@ -34,7 +42,9 @@ import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
@@ -42,17 +52,25 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEnderDragon {
-
-	private PetDragon plugin;
-	Location loc;
 
 	static Field jumpField;
 	static Method checkWalls;
 	static Method checkCrystals;
 	static {
+		MinecraftKey mcKey = new MinecraftKey(PetEnderDragon.ENTITY_ID);
 		try {
+			if (!IRegistry.ENTITY_TYPE.getOptional(mcKey).isPresent()) {
+				@SuppressWarnings("unchecked")
+				Map<String, Type<?>> types = (Map<String, Type<?>>) DataConverterRegistry.a().getSchema(
+						DataFixUtils.makeKey(SharedConstants.getGameVersion().getWorldVersion()))
+						.findChoiceType(DataConverterTypes.ENTITY).types();
+				types.put(mcKey.toString(), types.get(IRegistry.ENTITY_TYPE.getKey(EntityTypes.ENDER_DRAGON).toString()));
+				IRegistry.a(IRegistry.ENTITY_TYPE, PetEnderDragon.ENTITY_ID,
+						EntityTypes.a.a(PetEnderDragon_v1_15_R1::new, EnumCreatureType.MONSTER).a().a(PetEnderDragon.ENTITY_ID));
+			}
 			jumpField = EntityLiving.class.getDeclaredField("jumping");
 			jumpField.setAccessible(true);
 			checkWalls = EntityEnderDragon.class.getDeclaredMethod("b", AxisAlignedBB.class);
@@ -63,24 +81,21 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		}
 	}
 
+	private final PetDragon plugin;
 	private long lastShot;
 	private boolean didMove;
 	int growlTicks = 100;
 
 	public PetEnderDragon_v1_15_R1(EntityTypes<? extends EntityEnderDragon> entitytypes, World world) {
-		super(EntityTypes.ENDER_DRAGON, world);
+		this(world.getWorld());
 	}
 	
-	public PetEnderDragon_v1_15_R1(Location loc, PetDragon plugin){
-		super(null, ((CraftWorld)loc.getWorld()).getHandle());
-		this.plugin = plugin;
-		this.loc = loc;
-		
+	public PetEnderDragon_v1_15_R1(org.bukkit.World world) {
+		super(EntityTypes.ENDER_DRAGON, ((CraftWorld)world).getHandle());
+		this.plugin = JavaPlugin.getPlugin(PetDragon.class);
 		this.setupDefault();
 		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
 		this.noclip = plugin.getConfigManager().isFlyThroughBlocks();
-		
-		this.setPosition(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
 	@Override
@@ -94,9 +109,11 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		nbt.setBoolean("Silent", plugin.getConfigManager().isSilent());
 		this.f(nbt);
 	}
-	
-	public void spawn(){
-		((CraftWorld)loc.getWorld()).getHandle().addEntity(this, SpawnReason.CUSTOM);
+
+	@Override
+	public void spawn(Vector location) {
+		this.setPosition(location.getX(), location.getY(), location.getZ());
+		this.world.addEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
 	}
 	
 	@Override
@@ -112,6 +129,13 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 	public boolean bi() { //ridable in water
 		return true;
 	};
+
+	@Override
+	public boolean d(NBTTagCompound nbttagcompound) {
+		boolean result = super.d(nbttagcompound);
+		nbttagcompound.setString("id", PetEnderDragon.ENTITY_ID);
+		return result;
+	}
 		
 	
 	@Override

@@ -17,6 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,9 +61,10 @@ public class DragonFactory {
     	return false;
 	}
 
-	public PetEnderDragon create(Location loc, UUID owner) {
+	public PetEnderDragon create(World world, UUID owner) {
 		try {
-			PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(Location.class, PetDragon.class).newInstance(loc, plugin);
+			//PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(Location.class, PetDragon.class).newInstance(loc, plugin);
+			PetEnderDragon dragon = (PetEnderDragon) dragonClass.getConstructor(World.class).newInstance(world);
 
 			if (!dragon.getEntity().getPersistentDataContainer().has(dragonIdKey, PersistentDataType.STRING)) {
 				dragon.getEntity().getPersistentDataContainer().set(dragonIdKey, PersistentDataType.STRING, dragon.getEntity().getUniqueId().toString());
@@ -109,16 +111,24 @@ public class DragonFactory {
 		return true;
 	}
 
-	public void handleDragonReset(Entity ent){
+	/**
+	 * Manually reset dragons spawned before 1.6 since their entity type is still wrong
+	 * @param ent the dragon to check
+	 */
+	public void handleOldDragon(Entity ent){
 		if (!isPetDragon(ent)) return;
 		EnderDragon dragon = (EnderDragon) ent;
+		try {
+			if (dragon.getClass().getDeclaredMethod("getHandle").invoke(dragon) instanceof PetEnderDragon) return;
+		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore) {
+		}
 
 		List<Entity> passengers = dragon.getPassengers();
 		dragon.remove();
 
-		PetEnderDragon petDragon = this.create(dragon.getLocation(), null);
+		PetEnderDragon petDragon = this.create(dragon.getWorld(), null);
 		petDragon.copyFrom(dragon);
-		petDragon.spawn();
+		petDragon.spawn(dragon.getLocation().toVector());
 
 		passengers.forEach(p -> petDragon.getEntity().addPassenger(p));
 	}

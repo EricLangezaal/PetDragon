@@ -16,11 +16,9 @@ import org.bukkit.event.entity.EnderDragonChangePhaseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.spigotmc.event.entity.EntityDismountEvent;
@@ -31,31 +29,6 @@ import java.util.Arrays;
 public class DragonListener implements Listener {
 	
 	private final PetDragon plugin;
-
-	@EventHandler
-	public void onJoin(PlayerJoinEvent e){
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-			Entity vehicle = e.getPlayer().getVehicle();
-			plugin.getFactory().handleDragonReset(vehicle);
-		});
-	}
-	
-	@EventHandler
-	public void worldLoad(WorldLoadEvent e){
-		for (Entity ent: e.getWorld().getEntitiesByClass(EnderDragon.class)){
-			plugin.getFactory().handleDragonReset(ent);
-		}
-	}
-
-	@EventHandler //should never happen, just in case
-	public void onDragonChangePhase(EnderDragonChangePhaseEvent event){
-		EnderDragon dragon = event.getEntity();
-		if (!plugin.getFactory().isPetDragon(dragon)) return;
-
-		plugin.getLogger().info("Found a broken dragon, fixing it now!");
-		event.setCancelled(true);
-		plugin.getFactory().handleDragonReset(dragon);
-	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onSwoop(DragonSwoopEvent event){

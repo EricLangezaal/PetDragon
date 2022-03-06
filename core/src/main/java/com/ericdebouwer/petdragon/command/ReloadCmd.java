@@ -18,7 +18,7 @@ public class ReloadCmd extends SubCommand {
         configManager.reloadConfig();
         for (World world: Bukkit.getWorlds()){
             for (EnderDragon dragon: world.getEntitiesByClass(EnderDragon.class)){
-                plugin.getFactory().handleDragonReset(dragon);
+                plugin.getFactory().handleOldDragon(dragon);
             }
         }
         if (configManager.isValid()) configManager.sendMessage(sender, Message.RELOAD_SUCCESS, null);

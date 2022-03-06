@@ -2,18 +2,26 @@ package com.ericdebouwer.petdragon.enderdragonNMS;
 
 import com.ericdebouwer.petdragon.PetDragon;
 import com.ericdebouwer.petdragon.api.DragonSwoopEvent;
+import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.types.Type;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -23,12 +31,15 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEnderDragon;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
@@ -36,19 +47,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDragon {
-
-	private PetDragon plugin;
-
-	Location loc;
 
 	static Field jumpField;
 	static Method checkWalls;
 	static Method checkCrystals;
 	static {
+		ResourceLocation mcKey = new ResourceLocation(PetEnderDragon.ENTITY_ID);
 		try {
+			if (!Registry.ENTITY_TYPE.getOptional(mcKey).isPresent()) {
+				@SuppressWarnings("unchecked")
+				Map<String, Type<?>> types = (Map<String, Type<?>>) DataFixers.getDataFixer().getSchema(
+						DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getDataVersion().getVersion()))
+						.findChoiceType(References.ENTITY).types();
+				types.put(mcKey.toString(), types.get(Registry.ENTITY_TYPE.getKey(EntityType.ENDER_DRAGON).toString()));
+				Registry.register(Registry.ENTITY_TYPE, PetEnderDragon.ENTITY_ID,
+						EntityType.Builder.of(PetEnderDragon_v1_18_R1::new, MobCategory.MONSTER).noSummon().build(PetEnderDragon.ENTITY_ID));
+			}
+
 			// specialsource does ignore reflection, so non mapped names
 			jumpField = LivingEntity.class.getDeclaredField("bo");
 			jumpField.setAccessible(true);
@@ -60,23 +79,21 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		}
 	}
 
+	private final PetDragon plugin;
 	private long lastShot;
 	private boolean didMove;
 	int growlTicks = 100;
 
 	public PetEnderDragon_v1_18_R1(EntityType<? extends EnderDragon> entitytypes, Level world) {
-		super(EntityType.ENDER_DRAGON, world);
+		this(world.getWorld());
 	}
 
-	public PetEnderDragon_v1_18_R1(Location loc, PetDragon plugin){
-		super(null, ((CraftWorld)loc.getWorld()).getHandle());
-		this.plugin = plugin;
-		this.loc = loc;
-
+	public PetEnderDragon_v1_18_R1(World world) {
+		super(EntityType.ENDER_DRAGON, ((CraftWorld)world).getHandle());
+		this.plugin = JavaPlugin.getPlugin(PetDragon.class);
 		this.setupDefault();
 		this.getBukkitEntity().setSilent(plugin.getConfigManager().isSilent());
 		this.noPhysics = plugin.getConfigManager().isFlyThroughBlocks();
-		this.setPos(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
 	@Override
@@ -92,8 +109,9 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	}
 
 	@Override
-	public void spawn() {
-		((CraftWorld)loc.getWorld()).getHandle().addFreshEntity(this, SpawnReason.CUSTOM);
+	public void spawn(Vector location) {
+		this.setPos(location.getX(), location.getY(), location.getZ());
+		this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
 	}
 	
 	@Override
@@ -110,6 +128,13 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	@Override
 	public boolean rideableUnderWater() { //ridable in water
 		return true;
+	}
+
+	@Override
+	public boolean save(CompoundTag nbttagcompound) {
+		boolean result = super.save(nbttagcompound);
+		nbttagcompound.putString("id", PetEnderDragon.ENTITY_ID);
+		return result;
 	}
 
 
