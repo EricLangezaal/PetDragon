@@ -88,7 +88,7 @@ public class ConfigManager {
 		checkUpdates = plugin.getConfig().getBoolean("check-for-updates", true);
 		collectMetrics = plugin.getConfig().getBoolean("collect-bstats-metrics", true);
 		
-		dragonEggName = ChatColor.translateAlternateColorCodes('§', plugin.getConfig().getString("dragon-egg-name", ""));
+		dragonEggName = color(plugin.getConfig().getString("dragon-egg-name", ""));
 		alwaysUseUpEgg = plugin.getConfig().getBoolean("always-use-up-egg");
 
 		rightClickRide = plugin.getConfig().getBoolean("right-click-to-ride", true);
@@ -114,11 +114,15 @@ public class ConfigManager {
 
 		clickToRemove = plugin.getConfig().getBoolean("click-to-remove");
 	}
+
+	private String color(String msg){
+		return ChatColor.translateAlternateColorCodes('§', msg);
+	}
 	
 	public String parseMessage(Message message, ImmutableMap<String, String> replacements) {
 		String msg = plugin.getConfig().getString(MESSAGES_PREFIX + message.getKey());
 		if (msg == null || msg.isEmpty()) return null;
-		String colorMsg = ChatColor.translateAlternateColorCodes('§', this.pluginPrefix + msg);
+		String colorMsg = color(this.pluginPrefix + msg);
 		if (replacements != null){
 			for (Map.Entry<String, String> entry: replacements.entrySet()){
 				colorMsg = colorMsg.replace( "{" + entry.getKey() + "}", entry.getValue());

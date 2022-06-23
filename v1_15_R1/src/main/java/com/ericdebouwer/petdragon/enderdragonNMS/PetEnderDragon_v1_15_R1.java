@@ -163,9 +163,7 @@ public class PetEnderDragon_v1_15_R1 extends EntityEnderDragon  implements PetEn
 		if (f < 0.01F) {
 			return false;
 		} else {
-			damagesource = DamageSource.c(null); //fake explosion
-			this.dealDamage(damagesource, f);
-
+			this.dealDamage(DamageSource.GENERIC, f);
 			return true;
 		}
 	}

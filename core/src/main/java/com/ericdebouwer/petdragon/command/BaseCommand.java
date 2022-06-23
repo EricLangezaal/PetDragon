@@ -76,6 +76,6 @@ public class BaseCommand implements CommandExecutor, TabCompleter {
         String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
 
         return  subCommand.tabComplete(subArgs).stream()
-                .filter(s -> s.startsWith(args[args.length - 1])).collect(Collectors.toList());
+                .filter(s -> s.toLowerCase().startsWith(args[args.length - 1].toLowerCase())).collect(Collectors.toList());
     }
 }

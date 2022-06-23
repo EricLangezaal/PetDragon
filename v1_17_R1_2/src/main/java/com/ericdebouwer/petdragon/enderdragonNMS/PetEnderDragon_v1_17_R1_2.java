@@ -163,8 +163,7 @@ public class PetEnderDragon_v1_17_R1_2 extends EnderDragon implements PetEnderDr
 		if (f < 0.01F) {
 			return false;
 		} else {
-			damagesource = DamageSource.explosion((LivingEntity) null); //fake explosion
-			this.reallyHurt(damagesource, f);
+			this.reallyHurt(DamageSource.GENERIC, f);
 			return true;
 		}
 	}

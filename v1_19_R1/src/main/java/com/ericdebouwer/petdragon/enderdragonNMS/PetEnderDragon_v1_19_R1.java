@@ -6,6 +6,8 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.types.Type;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -32,24 +34,25 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEnderDragon;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEnderDragon;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 
-public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDragon {
+public class PetEnderDragon_v1_19_R1 extends EnderDragon implements PetEnderDragon {
 
 	static Field jumpField;
 	static Method checkWalls;
@@ -58,24 +61,35 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 		ResourceLocation mcKey = new ResourceLocation(PetEnderDragon.ENTITY_ID);
 		try {
 			if (!Registry.ENTITY_TYPE.getOptional(mcKey).isPresent()) {
+				unfreezeEntityRegistry();
 				@SuppressWarnings("unchecked")
 				Map<String, Type<?>> types = (Map<String, Type<?>>) DataFixers.getDataFixer().getSchema(
 						DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getDataVersion().getVersion()))
 						.findChoiceType(References.ENTITY).types();
 				types.put(mcKey.toString(), types.get(Registry.ENTITY_TYPE.getKey(EntityType.ENDER_DRAGON).toString()));
 				Registry.register(Registry.ENTITY_TYPE, PetEnderDragon.ENTITY_ID,
-						EntityType.Builder.of(PetEnderDragon_v1_18_R1::new, MobCategory.MONSTER).noSummon().build(PetEnderDragon.ENTITY_ID));
+						EntityType.Builder.of(PetEnderDragon_v1_19_R1::new, MobCategory.MONSTER).noSummon().build(PetEnderDragon.ENTITY_ID));
+				Registry.ENTITY_TYPE.freeze();
 			}
 
 			// specialsource does ignore reflection, so non mapped names
-			jumpField = LivingEntity.class.getDeclaredField("bo");
+			jumpField = LivingEntity.class.getDeclaredField("bn");
 			jumpField.setAccessible(true);
 			checkWalls = EnderDragon.class.getDeclaredMethod("b", AABB.class);
 			checkWalls.setAccessible(true);
-			checkCrystals = EnderDragon.class.getDeclaredMethod("fz");
+			checkCrystals = EnderDragon.class.getDeclaredMethod("fK");
 			checkCrystals.setAccessible(true);
-		} catch (NoSuchFieldException | NoSuchMethodException ignore) {
+		} catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException ignore) {
 		}
+	}
+
+	private static void unfreezeEntityRegistry() throws NoSuchFieldException, IllegalAccessException {
+		Field intrusiveHolderCache = MappedRegistry.class.getDeclaredField("cc");
+		intrusiveHolderCache.setAccessible(true);
+		intrusiveHolderCache.set(Registry.ENTITY_TYPE, new IdentityHashMap<EntityType<?>, Holder.Reference<EntityType<?>>>());
+		Field frozenField = MappedRegistry.class.getDeclaredField("ca");
+		frozenField.setAccessible(true);
+		frozenField.set(Registry.ENTITY_TYPE, false);
 	}
 
 	private final PetDragon plugin;
@@ -83,11 +97,11 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	private boolean didMove;
 	int growlTicks = 100;
 
-	public PetEnderDragon_v1_18_R1(EntityType<? extends EnderDragon> entitytypes, Level world) {
+	public PetEnderDragon_v1_19_R1(EntityType<? extends EnderDragon> entitytypes, Level world) {
 		this(world.getWorld());
 	}
 
-	public PetEnderDragon_v1_18_R1(World world) {
+	public PetEnderDragon_v1_19_R1(World world) {
 		super(EntityType.ENDER_DRAGON, ((CraftWorld)world).getHandle());
 		this.plugin = JavaPlugin.getPlugin(PetDragon.class);
 		this.setupDefault();
@@ -110,7 +124,7 @@ public class PetEnderDragon_v1_18_R1 extends EnderDragon implements PetEnderDrag
 	@Override
 	public void spawn(Vector location) {
 		this.setPos(location.getX(), location.getY(), location.getZ());
-		this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
+		this.level.addFreshEntity(this, SpawnReason.CUSTOM);
 	}
 	
 	@Override

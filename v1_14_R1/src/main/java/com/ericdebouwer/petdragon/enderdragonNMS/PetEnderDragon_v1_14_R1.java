@@ -43,7 +43,6 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -165,9 +164,7 @@ public class PetEnderDragon_v1_14_R1 extends EntityEnderDragon  implements PetEn
 		if (f < 0.01F) {
 			return false;
 		} else {
-			damagesource = DamageSource.b(null); //fake explosion
-			this.dealDamage(damagesource, f);
-			
+			this.dealDamage(DamageSource.GENERIC, f);
 			return true;
 		}
 	}
