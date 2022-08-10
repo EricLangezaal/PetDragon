@@ -45,8 +45,9 @@ public class DragonFactory {
 
 		// version did remap even though version number didn't increase
 		String mcVersion = Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf('-'));
-		if (mcVersion.equals("1.17.1")) {
-			nmsVersion =  "v1_17_R1_2";
+		switch (mcVersion){
+			case "1.17.1": nmsVersion = "v1_17_R1_2"; break;
+			case "1.19.1": nmsVersion = "v1_19_R1_2"; break;
 		}
 
     	try {
