@@ -48,6 +48,7 @@ public class DragonFactory {
 		switch (mcVersion){
 			case "1.17.1": nmsVersion = "v1_17_R1_2"; break;
 			case "1.19.1": nmsVersion = "v1_19_R1_2"; break;
+			case "1.19.2": nmsVersion = "v1_19_R1_3"; break;
 		}
 
     	try {

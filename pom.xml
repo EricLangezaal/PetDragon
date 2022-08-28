@@ -19,13 +19,14 @@
         <module>v1_18_R2</module>
         <module>v1_19_R1</module>
         <module>v1_19_R1_2</module>
+        <module>v1_19_R1_3</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
+            <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -40,7 +41,7 @@
     </build>
 
     <properties>
-        <revision>1.6.2</revision>
+        <revision>1.6.3</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
