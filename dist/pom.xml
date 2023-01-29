@@ -77,6 +77,11 @@
             <artifactId>petdragon-v1_19_R1_3</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v1_19_R2</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 

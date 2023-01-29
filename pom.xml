@@ -20,6 +20,7 @@
         <module>v1_19_R1</module>
         <module>v1_19_R1_2</module>
         <module>v1_19_R1_3</module>
+        <module>v1_19_R2</module>
     </modules>
 
     <dependencies>
@@ -41,7 +42,7 @@
     </build>
 
     <properties>
-        <revision>1.6.3</revision>
+        <revision>1.6.4</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
