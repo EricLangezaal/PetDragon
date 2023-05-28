@@ -8,6 +8,7 @@ import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -81,9 +82,10 @@ public class DragonListener implements Listener {
 	@EventHandler
 	public void riderDamage(EntityDamageEvent e){
 		if (!plugin.getFactory().isPetDragon(e.getEntity().getVehicle())) return;
-		if (Arrays.asList(DamageCause.FLY_INTO_WALL, DamageCause.ENTITY_EXPLOSION, DamageCause.DRAGON_BREATH, DamageCause.FALL)
+		if (Arrays.asList(DamageCause.FLY_INTO_WALL, DamageCause.SUFFOCATION, DamageCause.ENTITY_EXPLOSION, DamageCause.DRAGON_BREATH, DamageCause.FALL)
 				.contains(e.getCause())) e.setCancelled(true);
 	}
+
 
 	
 	@EventHandler
