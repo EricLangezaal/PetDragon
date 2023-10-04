@@ -27,7 +27,7 @@
             <artifactId>petdragon-v1_15_R1</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_16_R1</artifactId>
             <version>${project.parent.version}</version>
@@ -36,27 +36,27 @@
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_16_R2</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_16_R3</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_17_R1</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_17_R1_2</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_18_R1</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_18_R2</artifactId>
@@ -90,6 +90,11 @@
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_20_R1</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v1_20_R2</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

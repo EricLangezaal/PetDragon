@@ -15,13 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Getter
 public class PetDragon extends JavaPlugin {
 
-	// SUPPORTED:
-	// 1.18, 1.18.1, 1.18.2
-	// 1.17, 1.17.1
-	// 1.16, 1.16.1, 1.16.2, 1.16.3, 1.16.4, 1.16.5 (tested)
-	// 1.15, 1.15.1 (not tested), 1.15.2 (1.15-R1)
-	// 1.14.4, 1.14.x (not tested)
-
 	private ConfigManager configManager;
 	private DragonFactory factory;
 	private CustomItems customItems;
