@@ -43,12 +43,22 @@ public class DragonFactory {
 		String packageName = plugin.getServer().getClass().getPackage().getName();
 		String nmsVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
 
-		// version did remap even though version number didn't increase
 		String mcVersion = Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf('-'));
-		switch (mcVersion){
+		switch (mcVersion){ // paper made this necessary...
+			case "1.14": case "1.14.1": case "1.14.2": case "1.14.3": case "1.14.4": nmsVersion = "v1_14_R1"; break;
+			case "1.15": case "1.15.1": case "1.15.2": nmsVersion = "v1_15_R1"; break;
+			case "1.16.4": case "1.16.5": nmsVersion = "v1_16_R3"; break;
 			case "1.17.1": nmsVersion = "v1_17_R1_2"; break;
+			case "1.18.2": nmsVersion = "v1_18_R2"; break;
+			case "1.19": nmsVersion = "v1_19_R1"; break;
 			case "1.19.1": nmsVersion = "v1_19_R1_2"; break;
 			case "1.19.2": nmsVersion = "v1_19_R1_3"; break;
+			case "1.19.3": nmsVersion = "v1_19_R2"; break;
+			case "1.19.4": nmsVersion = "v1_19_R3"; break;
+			case "1.20": case "1.20.1": nmsVersion = "v1_20_R1"; break;
+			case "1.20.2": case "1.20.3": nmsVersion = "v1_20_R2"; break;
+			case "1.20.4": nmsVersion = "v1_20_R3"; break;
+			case "1.20.5": case "1.20.6": nmsVersion = "v1_20_R4"; break;
 		}
 
     	try {
