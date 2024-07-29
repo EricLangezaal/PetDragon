@@ -50,15 +50,12 @@ public class DragonFactory {
 			case "1.16.4": case "1.16.5": nmsVersion = "v1_16_R3"; break;
 			case "1.17.1": nmsVersion = "v1_17_R1_2"; break;
 			case "1.18.2": nmsVersion = "v1_18_R2"; break;
-			case "1.19": nmsVersion = "v1_19_R1"; break;
-			case "1.19.1": nmsVersion = "v1_19_R1_2"; break;
-			case "1.19.2": nmsVersion = "v1_19_R1_3"; break;
-			case "1.19.3": nmsVersion = "v1_19_R2"; break;
 			case "1.19.4": nmsVersion = "v1_19_R3"; break;
 			case "1.20": case "1.20.1": nmsVersion = "v1_20_R1"; break;
 			case "1.20.2": case "1.20.3": nmsVersion = "v1_20_R2"; break;
 			case "1.20.4": nmsVersion = "v1_20_R3"; break;
 			case "1.20.5": case "1.20.6": nmsVersion = "v1_20_R4"; break;
+			case "1.21": nmsVersion = "v1_21_R1"; break;
 		}
 
     	try {
@@ -67,10 +64,10 @@ public class DragonFactory {
         		this.dragonClass = clazz;
         		return true;
         	}
+			return false;
     	} catch (final Exception e) {
         	return false;
    		}
-    	return false;
 	}
 
 	public PetEnderDragon create(World world, UUID owner) {

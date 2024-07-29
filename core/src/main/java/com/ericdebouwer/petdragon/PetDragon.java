@@ -43,7 +43,8 @@ public class PetDragon extends JavaPlugin {
 		getLogger().info("Configuration has been successfully loaded!");
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
-				getLogger().info("If you really love this project, you could consider donating to help me keep this project alive! https://paypal.me/3ricL"));
+				getLogger().info("If you really love this project, consider getting the improved Premium version at https://spigotmc.org/resources/99995/"),
+				20);
 
 
 		new BaseCommand(this);
