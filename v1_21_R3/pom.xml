@@ -1,13 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.ericdebouwer</groupId>
         <artifactId>petdragon-parent</artifactId>
+        <groupId>com.ericdebouwer</groupId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>petdragon-v1_21_R1</artifactId>
+    <artifactId>petdragon-v1_21_R3</artifactId>
 
     <dependencies>
         <dependency>
@@ -65,6 +67,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <spigot.version>1.21.1-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.21.4-R0.1-SNAPSHOT</spigot.version>
     </properties>
+
 </project>
