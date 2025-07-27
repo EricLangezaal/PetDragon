@@ -57,6 +57,7 @@ public class DragonFactory {
 			case "1.20.5": case "1.20.6": nmsVersion = "v1_20_R4"; break;
 			case "1.21": nmsVersion = "v1_21_R1"; break;
 			case "1.21.4": nmsVersion = "v1_21_R3"; break;
+			case "1.21.6": case "1.21.7": case "1.21.8": nmsVersion = "v1_21_R5"; break;
 		}
 
     	try {

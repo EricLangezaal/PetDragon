@@ -117,6 +117,11 @@
             <artifactId>petdragon-v1_21_R3</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v1_21_R5</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 
