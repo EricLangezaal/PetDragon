@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DragonFactory {
 	
@@ -39,28 +41,38 @@ public class DragonFactory {
 		this.correctVersion = this.setUpDragonClass();
 	}
 
-	public boolean setUpDragonClass() {
-		String packageName = plugin.getServer().getClass().getPackage().getName();
-		String nmsVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
-
-		String mcVersion = Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf('-'));
-		switch (mcVersion){ // paper made this necessary...
-			case "1.14": case "1.14.1": case "1.14.2": case "1.14.3": case "1.14.4": nmsVersion = "v1_14_R1"; break;
-			case "1.15": case "1.15.1": case "1.15.2": nmsVersion = "v1_15_R1"; break;
-			case "1.16.4": case "1.16.5": nmsVersion = "v1_16_R3"; break;
-			case "1.17.1": nmsVersion = "v1_17_R1_2"; break;
-			case "1.18.2": nmsVersion = "v1_18_R2"; break;
-			case "1.19.4": nmsVersion = "v1_19_R3"; break;
-			case "1.20": case "1.20.1": nmsVersion = "v1_20_R1"; break;
-			case "1.20.2": case "1.20.3": nmsVersion = "v1_20_R2"; break;
-			case "1.20.4": nmsVersion = "v1_20_R3"; break;
-			case "1.20.5": case "1.20.6": nmsVersion = "v1_20_R4"; break;
-			case "1.21": nmsVersion = "v1_21_R1"; break;
-			case "1.21.4": nmsVersion = "v1_21_R3"; break;
-			case "1.21.6": case "1.21.7": case "1.21.8": nmsVersion = "v1_21_R5"; break;
+	public String getMinecraftVersion() {
+		/*
+		Because Spigot and Paper could not even agree on a single versioning system...
+		 */
+		try {
+			return Bukkit.getMinecraftVersion();
+		} catch (NoSuchMethodError e){
+			Pattern p = Pattern.compile("(\\d+\\.\\d+(?:\\.\\d+)?)");
+			Matcher m = p.matcher(Bukkit.getVersion());
+			if (m.find()) return m.group(0);
+			return p.matcher(Bukkit.getBukkitVersion()).group(0);
 		}
+	}
 
-    	try {
+	public boolean setUpDragonClass() {
+		String nmsVersion = switch (getMinecraftVersion()) {
+			case "1.14", "1.14.1", "1.14.2", "1.14.3", "1.14.4" -> "v1_14_R1";
+			case "1.15", "1.15.1", "1.15.2" -> "v1_15_R1";
+			case "1.16.4", "1.16.5" -> "v1_16_R3";
+			case "1.17.1" -> "v1_17_R1_2";
+			case "1.18.2" -> "v1_18_R2";
+			case "1.19.4" -> "v1_19_R3";
+			case "1.20.5", "1.20.6" -> "v1_20_R4";
+			case "1.21", "1.21.1" -> "v1_21_R1";
+			case "1.21.4" -> "v1_21_R3";
+			case "1.21.6", "1.21.7", "1.21.8" -> "v1_21_R5";
+			case "1.21.11", "1.21.12" -> "v1_21_R7";
+			case "26.1", "26.1.1", "26.1.2" -> "v26_1_R1";
+			default -> "INVALID";
+		};
+
+		try {
         	final Class<?> clazz = Class.forName("com.ericdebouwer.petdragon.enderdragonNMS.PetEnderDragon_" + nmsVersion);
         	if (PetEnderDragon.class.isAssignableFrom(clazz)) { 
         		this.dragonClass = clazz;

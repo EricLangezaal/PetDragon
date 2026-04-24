@@ -87,7 +87,7 @@
             <artifactId>petdragon-v1_19_R3</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_20_R1</artifactId>
             <version>${project.parent.version}</version>
@@ -101,7 +101,7 @@
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_20_R3</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_20_R4</artifactId>
@@ -120,6 +120,16 @@
         <dependency>
             <groupId>com.ericdebouwer</groupId>
             <artifactId>petdragon-v1_21_R5</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v1_21_R7</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericdebouwer</groupId>
+            <artifactId>petdragon-v26_1_R1</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
